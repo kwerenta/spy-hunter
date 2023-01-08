@@ -5,6 +5,7 @@
 
 #include "draw.h"
 #include "application.h"
+#include "game.h"
 
 #include"./SDL2-2.0.10/include/SDL.h"
 #include"./SDL2-2.0.10/include/SDL_main.h"
@@ -16,8 +17,10 @@ int main(int argc, char** argv) {
 	Application app;
 	SDL_Event event;
 
-	int prevTick, currTick, quit, frames;
-	double worldTime, fpsTimer, fps, distance, etiSpeed;
+	GameState state;
+
+	int prevTick, currTick, frames = 0, quit = 0;
+	double fpsTimer = 0, fps = 0;
 
 	if (initializeApplication(&app) != 0)
 		return 1;
@@ -39,15 +42,9 @@ int main(int argc, char** argv) {
 	int red = SDL_MapRGB(app.screen->format, 0xFF, 0x00, 0x00);
 	int blue = SDL_MapRGB(app.screen->format, 0x11, 0x11, 0xCC);
 
-	prevTick = SDL_GetTicks();
+	initializeGameState(&state);
 
-	frames = 0;
-	fpsTimer = 0;
-	fps = 0;
-	quit = 0;
-	worldTime = 0;
-	distance = 0;
-	etiSpeed = 1;
+	prevTick = SDL_GetTicks();
 
 	while (!quit) {
 		currTick = SDL_GetTicks();
@@ -55,13 +52,13 @@ int main(int argc, char** argv) {
 		app.deltaTime = (currTick - prevTick) * 0.001;
 		prevTick = currTick;
 
-		worldTime += app.deltaTime;
+		state.time += app.deltaTime;
 
-		distance += etiSpeed * app.deltaTime;
+		state.distance += state.speed * app.deltaTime;
 
 		SDL_FillRect(app.screen, NULL, black);
 
-		DrawSurface(app.screen, app.surfaces[1], SCREEN_WIDTH / 2 + sin(distance) * SCREEN_HEIGHT / 3, SCREEN_HEIGHT / 2 + cos(distance) * SCREEN_HEIGHT / 3);
+		DrawSurface(app.screen, app.surfaces[ETI_s], SCREEN_WIDTH / 2 + sin(state.distance) * SCREEN_HEIGHT / 3, SCREEN_HEIGHT / 2 + cos(state.distance) * SCREEN_HEIGHT / 3);
 
 		fpsTimer += app.deltaTime;
 		if (fpsTimer > FPS_REFRESH_TIME) {
@@ -72,10 +69,14 @@ int main(int argc, char** argv) {
 
 		// info text
 		DrawRectangle(app.screen, 4, 4, SCREEN_WIDTH - 8, 36, red, blue);
-		sprintf_s(text, 128, "Template for the second project, elapsed time = %.1lf s  %.0lf frames / s", worldTime, fps);
-		DrawString(app.screen, app.screen->w / 2 - strlen(text) * 8 / 2, 10, text, app.surfaces[0]);
-		sprintf_s(text, 128, "Esc - exit, \030 - faster, \031 - slower");
-		DrawString(app.screen, app.screen->w / 2 - strlen(text) * 8 / 2, 26, text, app.surfaces[0]);
+		sprintf_s(text, 128, "TIME %03.0lf  %.0lf frames / s", state.time, fps);
+		DrawString(app.screen, 8, 10, text, app.surfaces[CHARSET_s]);
+
+		sprintf_s(text, 128, "SCORE %05d", state.score);
+		DrawString(app.screen, app.screen->w - 8 - strlen(text) * 8, 10, text, app.surfaces[CHARSET_s]);
+
+		sprintf_s(text, 128, "Kamil Wenta 193437");
+		DrawString(app.screen, app.screen->w / 2 - strlen(text) * 8 / 2, 26, text, app.surfaces[CHARSET_s]);
 
 		SDL_UpdateTexture(app.screenTexture, NULL, app.screen->pixels, app.screen->pitch);
 		SDL_RenderCopy(app.renderer, app.screenTexture, NULL, NULL);
@@ -85,11 +86,11 @@ int main(int argc, char** argv) {
 			switch (event.type) {
 			case SDL_KEYDOWN:
 				if (event.key.keysym.sym == SDLK_ESCAPE) quit = 1;
-				else if (event.key.keysym.sym == SDLK_UP) etiSpeed = 2.0;
-				else if (event.key.keysym.sym == SDLK_DOWN) etiSpeed = 0.3;
+				else if (event.key.keysym.sym == SDLK_UP) state.speed = 2.0;
+				else if (event.key.keysym.sym == SDLK_DOWN) state.speed = 0.3;
 				break;
 			case SDL_KEYUP:
-				etiSpeed = 1.0;
+				state.speed = 1.0;
 				break;
 			case SDL_QUIT:
 				quit = 1;
