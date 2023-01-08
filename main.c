@@ -4,21 +4,13 @@
 #include<string.h>
 
 #include "draw.h"
+#include "application.h"
 
 #include"./SDL2-2.0.10/include/SDL.h"
 #include"./SDL2-2.0.10/include/SDL_main.h"
 
-#define SCREEN_WIDTH	640
-#define SCREEN_HEIGHT	480
-
-typedef struct {
-	SDL_Renderer* renderer;
-	SDL_Window* window;
-	SDL_Surface* screen;
-	SDL_Texture* screenTexture;
-	SDL_Surface* surfaces[2];
-	double deltaTime;
-} Application;
+#define FPS_REFRESH_RATE 2
+#define FPS_REFRESH_TIME ((double)1 / FPS_REFRESH_RATE)
 
 int main(int argc, char** argv) {
 	Application app;
@@ -27,31 +19,8 @@ int main(int argc, char** argv) {
 	int prevTick, currTick, quit, frames;
 	double worldTime, fpsTimer, fps, distance, etiSpeed;
 
-	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
-		printf("SDL_Init error: %s\n", SDL_GetError());
+	if (initializeApplication(&app) != 0)
 		return 1;
-	}
-
-	if (SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &app.window, &app.renderer) != 0) {
-		SDL_Quit();
-		printf("SDL_CreateWindowAndRenderer error: %s\n", SDL_GetError());
-		return 1;
-	};
-
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
-	SDL_RenderSetLogicalSize(app.renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
-	SDL_SetRenderDrawColor(app.renderer, 0, 0, 0, 255);
-
-	SDL_SetWindowTitle(app.window, "Spy Hunter");
-
-	app.screen = SDL_CreateRGBSurface(0, SCREEN_WIDTH, SCREEN_HEIGHT, 32,
-		0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
-
-	app.screenTexture= SDL_CreateTexture(app.renderer, SDL_PIXELFORMAT_ARGB8888,
-		SDL_TEXTUREACCESS_STREAMING,
-		SCREEN_WIDTH, SCREEN_HEIGHT);
-
-	SDL_ShowCursor(SDL_DISABLE);
 
 	app.surfaces[0] = SDL_LoadBMP("./cs8x8.bmp");
 	if (app.surfaces[0] == NULL) {
@@ -105,15 +74,13 @@ int main(int argc, char** argv) {
 
 		SDL_FillRect(app.screen, NULL, black);
 
-		DrawSurface(app.screen, app.surfaces[1],
-			SCREEN_WIDTH / 2 + sin(distance) * SCREEN_HEIGHT / 3,
-			SCREEN_HEIGHT / 2 + cos(distance) * SCREEN_HEIGHT / 3);
+		DrawSurface(app.screen, app.surfaces[1], SCREEN_WIDTH / 2 + sin(distance) * SCREEN_HEIGHT / 3, SCREEN_HEIGHT / 2 + cos(distance) * SCREEN_HEIGHT / 3);
 
 		fpsTimer += app.deltaTime;
-		if (fpsTimer > 0.5) {
-			fps = frames * 2;
+		if (fpsTimer > FPS_REFRESH_TIME) {
+			fps = frames * FPS_REFRESH_RATE;
 			frames = 0;
-			fpsTimer -= 0.5;
+			fpsTimer -= FPS_REFRESH_TIME;
 		};
 
 		// info text
@@ -145,13 +112,6 @@ int main(int argc, char** argv) {
 		frames++;
 	};
 
-	// freeing all surfaces
-	SDL_FreeSurface(app.surfaces[0]);
-	SDL_FreeSurface(app.screen);
-	SDL_DestroyTexture(app.screenTexture);
-	SDL_DestroyRenderer(app.renderer);
-	SDL_DestroyWindow(app.window);
-
-	SDL_Quit();
+	closeApplication(&app);
 	return 0;
 };
