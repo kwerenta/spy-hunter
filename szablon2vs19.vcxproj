@@ -19,11 +19,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="draw.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="cs8x8.bmp" />
     <Image Include="eti.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="draw.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
