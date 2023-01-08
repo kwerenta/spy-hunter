@@ -22,29 +22,16 @@ int main(int argc, char** argv) {
 	if (initializeApplication(&app) != 0)
 		return 1;
 
-	app.surfaces[0] = SDL_LoadBMP("./cs8x8.bmp");
-	if (app.surfaces[0] == NULL) {
-		printf("SDL_LoadBMP(cs8x8.bmp) error: %s\n", SDL_GetError());
-		SDL_FreeSurface(app.screen);
-		SDL_DestroyTexture(app.screenTexture);
-		SDL_DestroyWindow(app.window);
-		SDL_DestroyRenderer(app.renderer);
-		SDL_Quit();
-		return 1;
-	};
-	SDL_SetColorKey(app.surfaces[0], 1, 0x000000);
+	loadBMP(&app, CHARSET_s, "./cs8x8.bmp");
+	loadBMP(&app, ETI_s, "./eti.bmp");
 
-	app.surfaces[1] = SDL_LoadBMP("./eti.bmp");
-	if (app.surfaces[1] == NULL) {
-		printf("SDL_LoadBMP(eti.bmp) error: %s\n", SDL_GetError());
-		SDL_FreeSurface(app.surfaces[0]);
-		SDL_FreeSurface(app.screen);
-		SDL_DestroyTexture(app.screenTexture);
-		SDL_DestroyWindow(app.window);
-		SDL_DestroyRenderer(app.renderer);
-		SDL_Quit();
-		return 1;
-	};
+	// Check if all surfaces loaded correctly
+	int i;
+	for (i = 0; i < SURFACES_COUNT; i++) {
+		if (app.surfaces[i] == NULL) return 1;
+	}
+
+	SDL_SetColorKey(app.surfaces[CHARSET_s], 1, 0x000000);
 
 	char text[128];
 	int black = SDL_MapRGB(app.screen->format, 0x00, 0x00, 0x00);

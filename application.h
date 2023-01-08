@@ -4,6 +4,13 @@
 #define SCREEN_WIDTH	640
 #define SCREEN_HEIGHT	480
 
+#define SURFACES_COUNT 2
+
+typedef enum {
+	CHARSET_s,
+	ETI_s
+} Surfaces;
+
 typedef struct {
 	SDL_Renderer* renderer;
 	SDL_Window* window;
@@ -17,4 +24,4 @@ int initializeApplication(Application* app);
 
 void closeApplication(Application* app);
 
-int loadBMP(Application* app, char* name);
+void loadBMP(Application* app, Surfaces name, char* path);

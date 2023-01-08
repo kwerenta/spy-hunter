@@ -1,4 +1,5 @@
 #include "application.h"
+#include <stdio.h>
 
 int initializeApplication(Application* app) {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
@@ -26,8 +27,26 @@ int initializeApplication(Application* app) {
 	return 0;
 }
 
+void loadBMP(Application* app, Surfaces name, char* path) {
+	app->surfaces[name] = SDL_LoadBMP(path);
+
+	if (app->surfaces[name] == NULL) {
+		printf("SDL_LoadBMP(%s) error: %s\n", path, SDL_GetError());
+		closeApplication(app);
+	};
+}
+
+void freeAllSurfaces(Application* app) {
+	int i;
+	for (i = 0; i < SURFACES_COUNT; i++)
+	{
+		if (app->surfaces[i] != NULL)
+			SDL_FreeSurface(app->surfaces[i]);
+	}
+}
+
 void closeApplication(Application* app) {
-	SDL_FreeSurface(app->surfaces[0]);
+	freeAllSurfaces(app);
 	SDL_FreeSurface(app->screen);
 	SDL_DestroyTexture(app->screenTexture);
 	SDL_DestroyRenderer(app->renderer);
