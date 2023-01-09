@@ -22,6 +22,7 @@
     <ClCompile Include="draw.c" />
     <ClCompile Include="application.c" />
     <ClCompile Include="game.c" />
+    <ClCompile Include="gui.c" />
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
@@ -32,6 +33,7 @@
     <ClInclude Include="draw.h" />
     <ClInclude Include="application.h" />
     <ClInclude Include="game.h" />
+    <ClInclude Include="gui.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

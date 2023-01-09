@@ -6,6 +6,7 @@
 #include "draw.h"
 #include "application.h"
 #include "game.h"
+#include "gui.h"
 
 #include"./SDL2-2.0.10/include/SDL.h"
 #include"./SDL2-2.0.10/include/SDL_main.h"
@@ -72,16 +73,7 @@ int main(int argc, char** argv) {
 			fpsTimer -= FPS_REFRESH_TIME;
 		};
 
-		// info text
-		DrawRectangle(app.screen, 4, 4, SCREEN_WIDTH - 8, 36, red, blue);
-		sprintf_s(text, 128, "TIME %03.0lf  %.0lf frames / s", state.time, fps);
-		DrawString(app.screen, 8, 10, text, app.surfaces[CHARSET_s]);
-
-		sprintf_s(text, 128, "SCORE %05d", state.score);
-		DrawString(app.screen, app.screen->w - 8 - strlen(text) * 8, 10, text, app.surfaces[CHARSET_s]);
-
-		sprintf_s(text, 128, "Kamil Wenta 193437");
-		DrawString(app.screen, app.screen->w / 2 - strlen(text) * 8 / 2, 26, text, app.surfaces[CHARSET_s]);
+		renderLegend(&app, &state, text, blue, red);
 
 		SDL_UpdateTexture(app.screenTexture, NULL, app.screen->pixels, app.screen->pitch);
 		SDL_RenderCopy(app.renderer, app.screenTexture, NULL, NULL);
