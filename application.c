@@ -37,8 +37,7 @@ void loadBMP(Application* app, Surfaces name, char* path) {
 }
 
 void freeAllSurfaces(Application* app) {
-	int i;
-	for (i = 0; i < SURFACES_COUNT; i++)
+	for (int i = 0; i < SURFACES_COUNT; i++)
 	{
 		if (app->surfaces[i] != NULL)
 			SDL_FreeSurface(app->surfaces[i]);

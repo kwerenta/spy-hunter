@@ -55,17 +55,20 @@ int main(int argc, char** argv) {
 			state.distance += state.speed * SPEED_MULTIPLIER * app.deltaTime;
 			state.position += direction * SPEED_MULTIPLIER * app.deltaTime;
 			state.score = (int)(state.distance / SCREEN_HEIGHT) * 50;
+
+			backgroundOffset = (int)state.distance % SCREEN_HEIGHT;
+			DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset - SCREEN_HEIGHT / 2);
+			DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset + SCREEN_HEIGHT / 2);
+
+			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth / 2, 0, state.roadWidth, SCREEN_HEIGHT, black, black);
+
+			DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, SCREEN_HEIGHT * 2 / 3);
+
+			renderLegend(&app, &state, buffer, blue, red);
 		}
-
-		backgroundOffset = (int)state.distance % SCREEN_HEIGHT;
-		DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset - SCREEN_HEIGHT / 2);
-		DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset + SCREEN_HEIGHT / 2);
-
-		DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth / 2, 0, state.roadWidth, SCREEN_HEIGHT, black, black);
-
-		DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, SCREEN_HEIGHT * 2 / 3);
-
-		renderLegend(&app, &state, buffer, blue, red);
+		else if (state.status == PAUSED) {
+			renderPause(&app, buffer);
+		}
 
 		SDL_UpdateTexture(app.screenTexture, NULL, app.screen->pixels, app.screen->pitch);
 		SDL_RenderCopy(app.renderer, app.screenTexture, NULL, NULL);
