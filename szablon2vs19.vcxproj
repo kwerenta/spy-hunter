@@ -25,8 +25,8 @@
     <ClCompile Include="main.c" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="..\..\..\Desktop\car.bmp" />
     <Image Include="cs8x8.bmp" />
-    <Image Include="eti.bmp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="draw.h" />

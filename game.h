@@ -1,10 +1,11 @@
 typedef enum {
-	PLAYING
+	PLAYING,
+	QUIT
 } GameStatus;
 
 typedef struct {
 	int score;
-	int position;
+	double position;
 	int haltScore;
 	int carsLeft;
 	double time;

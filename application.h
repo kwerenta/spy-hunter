@@ -8,7 +8,7 @@
 
 typedef enum {
 	CHARSET_s,
-	ETI_s
+	CAR_s
 } Surfaces;
 
 typedef struct {
