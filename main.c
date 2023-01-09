@@ -63,7 +63,6 @@ int main(int argc, char** argv) {
 
 		DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth / 2, 0, state.roadWidth, SCREEN_HEIGHT, black, black);
 
-		// Car sprite is 24px wide
 		DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, SCREEN_HEIGHT * 2 / 3);
 
 		renderLegend(&app, &state, buffer, blue, red);
@@ -79,6 +78,7 @@ int main(int argc, char** argv) {
 				{
 				case SDLK_ESCAPE: state.status = QUIT; break;
 				case SDLK_p: state.status = state.status == PAUSED ? PLAYING : PAUSED; break;
+				case SDLK_n: initializeGameState(&state);
 				default:break;
 				}
 
