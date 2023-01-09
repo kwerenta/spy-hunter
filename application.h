@@ -6,11 +6,12 @@
 #define SCREEN_WIDTH	640
 #define SCREEN_HEIGHT	480
 
-#define SURFACES_COUNT 2
+#define SURFACES_COUNT 3
 
 typedef enum {
 	CHARSET_s,
-	CAR_s
+	CAR_s,
+	GRASS_s
 } Surfaces;
 
 typedef struct {
@@ -18,7 +19,7 @@ typedef struct {
 	SDL_Window* window;
 	SDL_Surface* screen;
 	SDL_Texture* screenTexture;
-	SDL_Surface* surfaces[2];
+	SDL_Surface* surfaces[SURFACES_COUNT];
 	double deltaTime;
 } Application;
 

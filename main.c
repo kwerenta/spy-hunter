@@ -30,6 +30,7 @@ int main(int argc, char** argv) {
 
 	loadBMP(&app, CHARSET_s, "./cs8x8.bmp");
 	loadBMP(&app, CAR_s, "./car.bmp");
+	loadBMP(&app, GRASS_s, "./bg.bmp");
 
 	// Check if all surfaces loaded correctly
 	int i;
@@ -50,6 +51,7 @@ int main(int argc, char** argv) {
 	prevTick = SDL_GetTicks();
 
 	int direction = 0;
+	int backgroundOffset;
 
 	while (state.status != QUIT) {
 		currTick = SDL_GetTicks();
@@ -59,10 +61,15 @@ int main(int argc, char** argv) {
 
 		state.time += app.deltaTime;
 
-		state.distance += state.speed * app.deltaTime;
+		state.distance += state.speed * SPEED_MULTIPLIER * app.deltaTime;
 		state.position += direction * SPEED_MULTIPLIER * app.deltaTime;
+		state.score = (int)(state.distance / SCREEN_HEIGHT) * 50;
 
-		SDL_FillRect(app.screen, NULL, grassGreen);
+		backgroundOffset = (int)state.distance % SCREEN_HEIGHT;
+		DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset - SCREEN_HEIGHT / 2);
+		DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset + SCREEN_HEIGHT / 2);
+
+		DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth / 2, 0, state.roadWidth, SCREEN_HEIGHT, black, black);
 
 		DrawSurface(app.screen, app.surfaces[CAR_s], state.position, SCREEN_HEIGHT * 2 / 3);
 
@@ -94,7 +101,7 @@ int main(int argc, char** argv) {
 				break;
 			case SDL_KEYUP:
 				state.speed = 1.0;
-				if ((event.key.keysym.sym == SDLK_RIGHT && direction == 1) || 
+				if ((event.key.keysym.sym == SDLK_RIGHT && direction == 1) ||
 					(event.key.keysym.sym == SDLK_LEFT && direction == -1))
 					direction = 0;
 				break;

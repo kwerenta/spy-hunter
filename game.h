@@ -7,9 +7,10 @@ typedef enum {
 
 typedef struct {
 	int score;
-	double position;
 	int haltScore;
 	int carsLeft;
+	int roadWidth;
+	double position;
 	double time;
 	double distance;
 	double speed;
