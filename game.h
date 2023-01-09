@@ -2,6 +2,7 @@
 
 typedef enum {
 	PLAYING,
+	PAUSED,
 	QUIT
 } GameStatus;
 

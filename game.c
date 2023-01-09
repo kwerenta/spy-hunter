@@ -8,8 +8,7 @@ void initializeGameState(GameState* state) {
 
 	state->carsLeft = 3;
 
-	// Car sprite is 24px wide
-	state->position = SCREEN_WIDTH / 2 + 12;
+	state->position = 0;
 	state->time = 0;
 	state->distance = 0;
 	state->speed = 1.0;

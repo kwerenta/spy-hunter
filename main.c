@@ -11,9 +11,6 @@
 #include"./SDL2-2.0.10/include/SDL.h"
 #include"./SDL2-2.0.10/include/SDL_main.h"
 
-#define FPS_REFRESH_RATE 2
-#define FPS_REFRESH_TIME ((double)1 / FPS_REFRESH_RATE)
-
 #define SPEED_MULTIPLIER 200
 
 int main(int argc, char** argv) {
@@ -21,9 +18,6 @@ int main(int argc, char** argv) {
 	SDL_Event event;
 
 	GameState state;
-
-	int prevTick, currTick, frames = 0;
-	double fpsTimer = 0, fps = 0;
 
 	if (initializeApplication(&app) != 0)
 		return 1;
@@ -33,14 +27,12 @@ int main(int argc, char** argv) {
 	loadBMP(&app, GRASS_s, "./bg.bmp");
 
 	// Check if all surfaces loaded correctly
-	int i;
-	for (i = 0; i < SURFACES_COUNT; i++) {
+	for (int i = 0; i < SURFACES_COUNT; i++)
 		if (app.surfaces[i] == NULL) return 1;
-	}
 
 	SDL_SetColorKey(app.surfaces[CHARSET_s], 1, 0x000000);
 
-	char text[128];
+	char buffer[128];
 	int black = SDL_MapRGB(app.screen->format, 0x00, 0x00, 0x00);
 	int grassGreen = SDL_MapRGB(app.screen->format, 0x37, 0xAE, 0x0F);
 	int red = SDL_MapRGB(app.screen->format, 0xFF, 0x00, 0x00);
@@ -48,10 +40,9 @@ int main(int argc, char** argv) {
 
 	initializeGameState(&state);
 
-	prevTick = SDL_GetTicks();
+	int prevTick, currTick, backgroundOffset, direction = 0;
 
-	int direction = 0;
-	int backgroundOffset;
+	prevTick = SDL_GetTicks();
 
 	while (state.status != QUIT) {
 		currTick = SDL_GetTicks();
@@ -59,11 +50,12 @@ int main(int argc, char** argv) {
 		app.deltaTime = (currTick - prevTick) * 0.001;
 		prevTick = currTick;
 
-		state.time += app.deltaTime;
-
-		state.distance += state.speed * SPEED_MULTIPLIER * app.deltaTime;
-		state.position += direction * SPEED_MULTIPLIER * app.deltaTime;
-		state.score = (int)(state.distance / SCREEN_HEIGHT) * 50;
+		if (state.status == PLAYING) {
+			state.time += app.deltaTime;
+			state.distance += state.speed * SPEED_MULTIPLIER * app.deltaTime;
+			state.position += direction * SPEED_MULTIPLIER * app.deltaTime;
+			state.score = (int)(state.distance / SCREEN_HEIGHT) * 50;
+		}
 
 		backgroundOffset = (int)state.distance % SCREEN_HEIGHT;
 		DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset - SCREEN_HEIGHT / 2);
@@ -71,16 +63,10 @@ int main(int argc, char** argv) {
 
 		DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth / 2, 0, state.roadWidth, SCREEN_HEIGHT, black, black);
 
-		DrawSurface(app.screen, app.surfaces[CAR_s], state.position, SCREEN_HEIGHT * 2 / 3);
+		// Car sprite is 24px wide
+		DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, SCREEN_HEIGHT * 2 / 3);
 
-		fpsTimer += app.deltaTime;
-		if (fpsTimer > FPS_REFRESH_TIME) {
-			fps = frames * FPS_REFRESH_RATE;
-			frames = 0;
-			fpsTimer -= FPS_REFRESH_TIME;
-		};
-
-		renderLegend(&app, &state, text, blue, red);
+		renderLegend(&app, &state, buffer, blue, red);
 
 		SDL_UpdateTexture(app.screenTexture, NULL, app.screen->pixels, app.screen->pitch);
 		SDL_RenderCopy(app.renderer, app.screenTexture, NULL, NULL);
@@ -92,11 +78,20 @@ int main(int argc, char** argv) {
 				switch (event.key.keysym.sym)
 				{
 				case SDLK_ESCAPE: state.status = QUIT; break;
-				case SDLK_UP: state.speed = 2.0; break;
-				case SDLK_DOWN: state.speed = 0.3; break;
-				case SDLK_RIGHT: direction = 1; break;
-				case SDLK_LEFT: direction = -1; break;
-				default: break;
+				case SDLK_p: state.status = state.status == PAUSED ? PLAYING : PAUSED; break;
+				default:break;
+				}
+
+				if (state.status == PLAYING)
+				{
+					switch (event.key.keysym.sym)
+					{
+					case SDLK_UP: state.speed = 2.0; break;
+					case SDLK_DOWN: state.speed = 0.3; break;
+					case SDLK_RIGHT: direction = 1; break;
+					case SDLK_LEFT: direction = -1; break;
+					default: break;
+					}
 				}
 				break;
 			case SDL_KEYUP:
@@ -110,7 +105,6 @@ int main(int argc, char** argv) {
 				break;
 			};
 		};
-		frames++;
 	};
 
 	closeApplication(&app);
