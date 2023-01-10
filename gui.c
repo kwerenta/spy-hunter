@@ -12,6 +12,13 @@ void renderLegend(Application* app, GameState* state, char* buffer, int bgColor,
 	DrawString(app->screen, app->screen->w / 2 - STRING_CENTER(buffer), 26, buffer, app->surfaces[CHARSET_s]);
 }
 
+void renderFunctionalities(Application* app, char* buffer, int bgColor, int borderColor) {
+	DrawRectangle(app->screen, SCREEN_WIDTH - 84, SCREEN_HEIGHT - 16, 80, 12, borderColor, bgColor);
+
+	sprintf_s(buffer, 128, "a-d, g, i");
+	DrawString(app->screen, app->screen->w - 8 - strlen(buffer) * 8, SCREEN_HEIGHT - 14, buffer, app->surfaces[CHARSET_s]);
+}
+
 void renderPause(Application* app, char* buffer) {
 	sprintf_s(buffer, 128, "PAUSED");
 	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), SCREEN_HEIGHT / 2 - 8, buffer, app->surfaces[CHARSET_s]);

@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
 				newWidth = 200 + rand() % 3 - 1 + rand() % 5 * 20;
 				updateRoadWidth = 0;
 			}
-
+			
 			if ((abs(state.position) > state.roadWidth / 2 && backgroundOffset < CAR_Y_POSITION) ||
 				(abs(state.position) > newWidth / 2 && backgroundOffset >= CAR_Y_POSITION))
 				state.position = 0;
@@ -81,6 +81,7 @@ int main(int argc, char** argv) {
 			DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, CAR_Y_POSITION);
 
 			renderLegend(&app, &state, buffer, blue, red);
+			renderFunctionalities(&app, buffer, blue, red);
 		}
 		else if (state.status == PAUSED) {
 			renderPause(&app, buffer);
