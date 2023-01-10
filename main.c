@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 #include<math.h>
 #include<stdio.h>
+#include<stdlib.h>
 #include<string.h>
 
 #include "draw.h"
@@ -41,6 +42,8 @@ int main(int argc, char** argv) {
 	initializeGameState(&state);
 
 	int prevTick, currTick, backgroundOffset, direction = 0;
+	int updateRoadWidth = 0;
+	int newWidth = state.roadWidth;
 
 	prevTick = SDL_GetTicks();
 
@@ -60,7 +63,16 @@ int main(int argc, char** argv) {
 			DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset - SCREEN_HEIGHT / 2);
 			DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset + SCREEN_HEIGHT / 2);
 
-			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth / 2, 0, state.roadWidth, SCREEN_HEIGHT, black, black);
+			if (backgroundOffset != 0)
+				updateRoadWidth = 1;
+			else if(updateRoadWidth == 1) {
+				state.roadWidth = newWidth;
+				newWidth = 200 + rand() % 3 - 1 + rand() % 5 * 20;
+				updateRoadWidth = 0;
+			}
+
+			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth / 2, backgroundOffset, state.roadWidth, SCREEN_HEIGHT - backgroundOffset, black, black);
+			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - newWidth / 2, 0, newWidth, backgroundOffset, black, black);
 
 			DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, SCREEN_HEIGHT * 2 / 3);
 
@@ -82,7 +94,7 @@ int main(int argc, char** argv) {
 				case SDLK_ESCAPE: state.status = QUIT; break;
 				case SDLK_p: state.status = state.status == PAUSED ? PLAYING : PAUSED; break;
 				case SDLK_n: initializeGameState(&state);
-				default:break;
+				default: break;
 				}
 
 				if (state.status == PLAYING)
