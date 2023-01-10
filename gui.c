@@ -26,3 +26,13 @@ void renderPause(Application* app, char* buffer) {
 	sprintf_s(buffer, 128, "Press P to continue");
 	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), SCREEN_HEIGHT / 2 + 8, buffer, app->surfaces[CHARSET_s]);
 }
+
+void renderBackground(Application* app, int backgroundOffset){
+	DrawSurface(app->screen, app->surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset - SCREEN_HEIGHT / 2);
+	DrawSurface(app->screen, app->surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset + SCREEN_HEIGHT / 2);
+}
+
+void renderRoad(Application* app, GameState* state, int backgroundOffset, int color){
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.current / 2, backgroundOffset, state->roadWidth.current, SCREEN_HEIGHT - backgroundOffset, color, color);
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.next / 2, 0, state->roadWidth.next, backgroundOffset, color, color);
+}

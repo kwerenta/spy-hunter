@@ -14,30 +14,22 @@
 
 int main(int argc, char** argv) {
 	Application app;
-	SDL_Event event;
-
 	GameState state;
 
-	if (initializeApplication(&app) != 0)
+	if (initializeApplication(&app) == 0)
 		return 1;
 
-	loadBMP(&app, CHARSET_s, "./cs8x8.bmp");
-	loadBMP(&app, CAR_s, "./car.bmp");
-	loadBMP(&app, GRASS_s, "./bg.bmp");
+	if (initializeSurfaces(&app) == 0)
+		return 1;
 
-	// Check if all surfaces loaded correctly
-	for (int i = 0; i < SURFACES_COUNT; i++)
-		if (app.surfaces[i] == NULL) return 1;
+	initializeGameState(&state);
 
-	SDL_SetColorKey(app.surfaces[CHARSET_s], 1, 0x000000);
+	SDL_Event event;
 
 	char buffer[128];
 	int black = SDL_MapRGB(app.screen->format, 0x00, 0x00, 0x00);
-	int grassGreen = SDL_MapRGB(app.screen->format, 0x37, 0xAE, 0x0F);
 	int red = SDL_MapRGB(app.screen->format, 0xFF, 0x00, 0x00);
 	int blue = SDL_MapRGB(app.screen->format, 0x11, 0x11, 0xCC);
-
-	initializeGameState(&state);
 
 	int currTick, backgroundOffset, prevTick = SDL_GetTicks();
 
@@ -50,24 +42,13 @@ int main(int argc, char** argv) {
 			updateGameState(&app, &state);
 
 			backgroundOffset = (int)state.distance % SCREEN_HEIGHT;
-			DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset - SCREEN_HEIGHT / 2);
-			DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset + SCREEN_HEIGHT / 2);
+			renderBackground(&app, backgroundOffset);
 
-			if (backgroundOffset != 0) {
-				state.roadWidth.shouldUpdate = 1;
-			}
-			else if (state.roadWidth.shouldUpdate == 1) {
-				state.roadWidth.shouldUpdate = 0;
-				state.roadWidth.current = state.roadWidth.next;
-				state.roadWidth.next = DEFAULT_ROAD_WIDTH + (rand() % 3 - 1) * rand() % 5 * 20;
-			}
+			updateRoadWidth(&state, backgroundOffset);
+			renderRoad(&app, &state, backgroundOffset, black);
 
-			if ((abs(state.position) > state.roadWidth.current / 2 && backgroundOffset < CAR_Y_POSITION) ||
-				(abs(state.position) > state.roadWidth.next / 2 && backgroundOffset >= CAR_Y_POSITION))
+			if (abs(state.position) > (backgroundOffset >= CAR_Y_POSITION ? state.roadWidth.next : state.roadWidth.current) / 2)
 				state.position = 0;
-
-			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth.current / 2, backgroundOffset, state.roadWidth.current, SCREEN_HEIGHT - backgroundOffset, black, black);
-			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth.next / 2, 0, state.roadWidth.next, backgroundOffset, black, black);
 
 			DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, CAR_Y_POSITION);
 
@@ -78,43 +59,14 @@ int main(int argc, char** argv) {
 			renderPause(&app, buffer);
 		}
 
-		SDL_UpdateTexture(app.screenTexture, NULL, app.screen->pixels, app.screen->pitch);
-		SDL_RenderCopy(app.renderer, app.screenTexture, NULL, NULL);
-		SDL_RenderPresent(app.renderer);
+		updateScreen(&app);
 
-		while (SDL_PollEvent(&event)) {
-			switch (event.type) {
-			case SDL_KEYDOWN:
-				switch (event.key.keysym.sym)
-				{
-				case SDLK_ESCAPE: state.status = QUIT; break;
-				case SDLK_p: state.status = state.status == PAUSED ? PLAYING : PAUSED; break;
-				case SDLK_n: initializeGameState(&state);
-				default: break;
-				}
-
-				if (state.status == PLAYING)
-				{
-					switch (event.key.keysym.sym)
-					{
-					case SDLK_UP: state.speed = 2.0; break;
-					case SDLK_DOWN: state.speed = 0.3; break;
-					case SDLK_RIGHT: state.direction = RIGHT; break;
-					case SDLK_LEFT: state.direction = LEFT; break;
-					default: break;
-					}
-				}
-				break;
-			case SDL_KEYUP:
-				state.speed = 1.0;
-				if ((event.key.keysym.sym == SDLK_RIGHT && state.direction == RIGHT) ||
-					(event.key.keysym.sym == SDLK_LEFT && state.direction == LEFT))
-					state.direction = NONE;
-				break;
-			case SDL_QUIT:
+		while (SDL_PollEvent(&event)) {	
+			handleControls(&state, &event);
+			if (event.type == SDL_QUIT)
 				state.status = QUIT;
-				break;
-			};
+			else if (state.status == PLAYING)
+				handleMovement(&state, &event);
 		};
 	};
 

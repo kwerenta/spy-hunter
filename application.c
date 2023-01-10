@@ -3,13 +3,13 @@
 int initializeApplication(Application* app) {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {
 		printf("SDL_Init error: %s\n", SDL_GetError());
-		return 1;
+		return 0;
 	}
 
 	if (SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &app->window, &app->renderer) != 0) {
 		SDL_Quit();
 		printf("SDL_CreateWindowAndRenderer error: %s\n", SDL_GetError());
-		return 1;
+		return 0;
 	};
 
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
@@ -23,32 +23,51 @@ int initializeApplication(Application* app) {
 
 	SDL_ShowCursor(SDL_DISABLE);
 
-	return 0;
+	return 1;
 }
 
-void loadBMP(Application* app, Surfaces name, char* path) {
-	app->surfaces[name] = SDL_LoadBMP(path);
+void loadBMP(SDL_Surface* surfaces[SURFACES_COUNT], Surfaces name, char* path) {
+	surfaces[name] = SDL_LoadBMP(path);
 
-	if (app->surfaces[name] == NULL) {
+	if (surfaces[name] == NULL) 
 		printf("SDL_LoadBMP(%s) error: %s\n", path, SDL_GetError());
-		closeApplication(app);
-	};
 }
 
-void freeAllSurfaces(Application* app) {
+int initializeSurfaces(Application* app) {
+	loadBMP(app->surfaces, CHARSET_s, "./cs8x8.bmp");
+	loadBMP(app->surfaces, CAR_s, "./car.bmp");
+	loadBMP(app->surfaces, GRASS_s, "./bg.bmp");
+
+	// Check if all surfaces loaded correctly
 	for (int i = 0; i < SURFACES_COUNT; i++)
-	{
-		if (app->surfaces[i] != NULL)
-			SDL_FreeSurface(app->surfaces[i]);
-	}
+		if (app->surfaces[i] == NULL) {
+			closeApplication(app);
+			return 0;
+		}
+
+	SDL_SetColorKey(app->surfaces[CHARSET_s], 1, 0x000000);
+
+	return 1;
+}
+
+void freeAllSurfaces(SDL_Surface* surfaces[SURFACES_COUNT]) {
+	for (int i = 0; i < SURFACES_COUNT; i++)
+		if (surfaces[i] != NULL)
+			SDL_FreeSurface(surfaces[i]);
 }
 
 void closeApplication(Application* app) {
-	freeAllSurfaces(app);
+	freeAllSurfaces(app->surfaces);
 	SDL_FreeSurface(app->screen);
 	SDL_DestroyTexture(app->screenTexture);
 	SDL_DestroyRenderer(app->renderer);
 	SDL_DestroyWindow(app->window);
 
 	SDL_Quit();
+}
+
+void updateScreen(Application* app) {
+	SDL_UpdateTexture(app->screenTexture, NULL, app->screen->pixels, app->screen->pitch);
+	SDL_RenderCopy(app->renderer, app->screenTexture, NULL, NULL);
+	SDL_RenderPresent(app->renderer);
 }

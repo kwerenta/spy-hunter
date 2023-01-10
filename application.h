@@ -28,7 +28,6 @@ typedef struct Application {
 } Application;
 
 int initializeApplication(Application* app);
-
 void closeApplication(Application* app);
-
-void loadBMP(Application* app, Surfaces name, char* path);
+int initializeSurfaces(Application* app);
+void updateScreen(Application* app);
