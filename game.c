@@ -41,6 +41,8 @@ void handleControls(GameState* state, SDL_Event* event) {
 		case SDLK_ESCAPE: state->status = QUIT; break;
 		case SDLK_p: state->status = state->status == PAUSED ? PLAYING : PAUSED; break;
 		case SDLK_n: initializeGameState(state); break;
+		case SDLK_s: state->status = saveGame(state) == 1 ? PAUSED : QUIT; break;
+		case SDLK_l: state->status = loadGame(state) == 1 ? PAUSED : QUIT; break;
 		default: break;
 		}
 	}
@@ -66,3 +68,32 @@ void handleMovement(GameState* state, SDL_Event* event) {
 		break;
 	};
 };
+
+int saveGame(GameState* state) {
+	char datetime[18], buffer[30];
+	time_t timestamp = time(NULL);
+	struct tm* time = localtime(&timestamp);
+
+	strftime(datetime, sizeof(datetime), "%F_%H%M%S", time);
+	sprintf_s(buffer, sizeof(buffer), "%s%s%s", "./saves/", datetime, ".bin");
+	FILE* saveFile = fopen(buffer, "wb");
+
+	if (saveFile == NULL) return 0;
+
+	int saveCount = fwrite(state, sizeof(GameState), 1, saveFile);
+	fclose(saveFile);
+
+	return saveCount;
+}
+
+int loadGame(GameState* state) {
+	// TEMP Fixed saveFile name
+	FILE* saveFile = fopen("./saves/2023-01-10_202529.bin", "rb");
+
+	if (saveFile == NULL) return 0;
+
+	int loadCount = fread(state, sizeof(GameState), 1, saveFile);
+	fclose(saveFile);
+
+	return loadCount;
+}

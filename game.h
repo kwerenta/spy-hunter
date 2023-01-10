@@ -1,5 +1,7 @@
 #pragma once
 
+#include <time.h>
+
 #include "application.h"
 
 #define SPEED_MULTIPLIER 200
@@ -41,3 +43,5 @@ void updateGameState(Application* app, GameState* state);
 void updateRoadWidth(GameState* state, int backgroundOffset);
 void handleControls(GameState* state, SDL_Event* event);
 void handleMovement(GameState* state, SDL_Event* event);
+int loadGame(GameState* state);
+int saveGame(GameState* state);
