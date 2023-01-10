@@ -71,10 +71,14 @@ int main(int argc, char** argv) {
 				updateRoadWidth = 0;
 			}
 
+			if ((abs(state.position) > state.roadWidth / 2 && backgroundOffset < CAR_Y_POSITION) ||
+				(abs(state.position) > newWidth / 2 && backgroundOffset >= CAR_Y_POSITION))
+				state.position = 0;
+
 			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth / 2, backgroundOffset, state.roadWidth, SCREEN_HEIGHT - backgroundOffset, black, black);
 			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - newWidth / 2, 0, newWidth, backgroundOffset, black, black);
 
-			DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, SCREEN_HEIGHT * 2 / 3);
+			DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, CAR_Y_POSITION);
 
 			renderLegend(&app, &state, buffer, blue, red);
 		}

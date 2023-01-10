@@ -8,6 +8,8 @@
 
 #define SURFACES_COUNT 3
 
+#define CAR_Y_POSITION SCREEN_HEIGHT * 3 / 4
+
 typedef enum {
 	CHARSET_s,
 	CAR_s,
