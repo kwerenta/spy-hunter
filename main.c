@@ -12,8 +12,6 @@
 #include"./SDL2-2.0.10/include/SDL.h"
 #include"./SDL2-2.0.10/include/SDL_main.h"
 
-#define SPEED_MULTIPLIER 200
-
 int main(int argc, char** argv) {
 	Application app;
 	SDL_Event event;
@@ -41,42 +39,35 @@ int main(int argc, char** argv) {
 
 	initializeGameState(&state);
 
-	int prevTick, currTick, backgroundOffset, direction = 0;
-	int updateRoadWidth = 0;
-	int newWidth = state.roadWidth;
-
-	prevTick = SDL_GetTicks();
+	int currTick, backgroundOffset, prevTick = SDL_GetTicks();
 
 	while (state.status != QUIT) {
 		currTick = SDL_GetTicks();
-
 		app.deltaTime = (currTick - prevTick) * 0.001;
 		prevTick = currTick;
 
 		if (state.status == PLAYING) {
-			state.time += app.deltaTime;
-			state.distance += state.speed * SPEED_MULTIPLIER * app.deltaTime;
-			state.position += direction * SPEED_MULTIPLIER * app.deltaTime;
-			state.score = (int)(state.distance / SCREEN_HEIGHT) * 50;
+			updateGameState(&app, &state);
 
 			backgroundOffset = (int)state.distance % SCREEN_HEIGHT;
 			DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset - SCREEN_HEIGHT / 2);
 			DrawSurface(app.screen, app.surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset + SCREEN_HEIGHT / 2);
 
-			if (backgroundOffset != 0)
-				updateRoadWidth = 1;
-			else if(updateRoadWidth == 1) {
-				state.roadWidth = newWidth;
-				newWidth = 200 + rand() % 3 - 1 + rand() % 5 * 20;
-				updateRoadWidth = 0;
+			if (backgroundOffset != 0) {
+				state.roadWidth.shouldUpdate = 1;
 			}
-			
-			if ((abs(state.position) > state.roadWidth / 2 && backgroundOffset < CAR_Y_POSITION) ||
-				(abs(state.position) > newWidth / 2 && backgroundOffset >= CAR_Y_POSITION))
+			else if (state.roadWidth.shouldUpdate == 1) {
+				state.roadWidth.shouldUpdate = 0;
+				state.roadWidth.current = state.roadWidth.next;
+				state.roadWidth.next = DEFAULT_ROAD_WIDTH + (rand() % 3 - 1) * rand() % 5 * 20;
+			}
+
+			if ((abs(state.position) > state.roadWidth.current / 2 && backgroundOffset < CAR_Y_POSITION) ||
+				(abs(state.position) > state.roadWidth.next / 2 && backgroundOffset >= CAR_Y_POSITION))
 				state.position = 0;
 
-			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth / 2, backgroundOffset, state.roadWidth, SCREEN_HEIGHT - backgroundOffset, black, black);
-			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - newWidth / 2, 0, newWidth, backgroundOffset, black, black);
+			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth.current / 2, backgroundOffset, state.roadWidth.current, SCREEN_HEIGHT - backgroundOffset, black, black);
+			DrawRectangle(app.screen, SCREEN_WIDTH / 2 - state.roadWidth.next / 2, 0, state.roadWidth.next, backgroundOffset, black, black);
 
 			DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, CAR_Y_POSITION);
 
@@ -108,17 +99,17 @@ int main(int argc, char** argv) {
 					{
 					case SDLK_UP: state.speed = 2.0; break;
 					case SDLK_DOWN: state.speed = 0.3; break;
-					case SDLK_RIGHT: direction = 1; break;
-					case SDLK_LEFT: direction = -1; break;
+					case SDLK_RIGHT: state.direction = RIGHT; break;
+					case SDLK_LEFT: state.direction = LEFT; break;
 					default: break;
 					}
 				}
 				break;
 			case SDL_KEYUP:
 				state.speed = 1.0;
-				if ((event.key.keysym.sym == SDLK_RIGHT && direction == 1) ||
-					(event.key.keysym.sym == SDLK_LEFT && direction == -1))
-					direction = 0;
+				if ((event.key.keysym.sym == SDLK_RIGHT && state.direction == RIGHT) ||
+					(event.key.keysym.sym == SDLK_LEFT && state.direction == LEFT))
+					state.direction = NONE;
 				break;
 			case SDL_QUIT:
 				state.status = QUIT;

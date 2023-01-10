@@ -1,5 +1,4 @@
 #include "application.h"
-#include <stdio.h>
 
 int initializeApplication(Application* app) {
 	if (SDL_Init(SDL_INIT_EVERYTHING) != 0) {

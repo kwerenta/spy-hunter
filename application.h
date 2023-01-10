@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdio.h>
+
 #include"./SDL2-2.0.10/include/SDL.h"
 #include"./SDL2-2.0.10/include/SDL_main.h"
 
@@ -10,13 +12,13 @@
 
 #define CAR_Y_POSITION SCREEN_HEIGHT * 3 / 4
 
-typedef enum {
+typedef enum Surfaces {
 	CHARSET_s,
 	CAR_s,
 	GRASS_s
 } Surfaces;
 
-typedef struct {
+typedef struct Application {
 	SDL_Renderer* renderer;
 	SDL_Window* window;
 	SDL_Surface* screen;

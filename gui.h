@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <string.h>
 
 #include "application.h"
 #include "game.h"
