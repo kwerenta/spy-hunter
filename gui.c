@@ -4,6 +4,12 @@ void renderLegend(Application* app, GameState* state, char* buffer, int bgColor,
 	DrawRectangle(app->screen, 4, 4, SCREEN_WIDTH - 8, 36, borderColor, bgColor);
 	sprintf_s(buffer, 128, "TIME %03.0lf", state->time);
 	DrawString(app->screen, 8, 10, buffer, app->surfaces[CHARSET_s]);
+	
+	if (state->immortalityTime > 0) 
+		sprintf_s(buffer, 128, "IMMORTAL %02.0lf", state->immortalityTime);
+	else
+		sprintf_s(buffer, 128, "CARS %02d", state->spareCars.count);
+	DrawString(app->screen, 8, 26, buffer, app->surfaces[CHARSET_s]);
 
 	sprintf_s(buffer, 128, "SCORE %05d", state->score);
 	DrawString(app->screen, app->screen->w - 8 - strlen(buffer) * 8, 10, buffer, app->surfaces[CHARSET_s]);

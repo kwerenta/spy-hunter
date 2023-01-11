@@ -9,6 +9,11 @@
 #define SPEED_MULTIPLIER 400
 #define DEFAULT_ROAD_WIDTH 200
 
+#define IMMORTALITY_TIME 99
+#define CAR_MILESTONE_1 7000
+#define CAR_MILESTONE_2 10000
+#define CAR_MILESTONE_LAST 20000
+
 typedef enum {
 	LEFT = -1,
 	NONE = 0,
@@ -28,14 +33,20 @@ typedef struct RoadWidth {
 	int lastUpdate;
 } RoadWidth;
 
+typedef struct SpareCars {
+	int count;
+	double lastMilestone;
+} SpareCars;
+
 typedef struct GameState {
 	int score;
 	int haltScore;
-	int carsLeft;
+	double immortalityTime;
 	double position;
 	double time;
 	double distance;
 	double speed;
+	SpareCars spareCars;
 	RoadWidth roadWidth;
 	H_Direction direction;
 	GameStatus status;
@@ -44,6 +55,7 @@ typedef struct GameState {
 void initializeGameState(GameState* state);
 void updateGameState(Application* app, GameState* state);
 void updateRoadWidth(GameState* state);
+void handleOutOfRoad(GameState* state, int backgroundOffset);
 void handleControls(GameState* state, SDL_Event* event, Saves* saves);
 void handleMovement(GameState* state, SDL_Event* event);
 void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* selection);

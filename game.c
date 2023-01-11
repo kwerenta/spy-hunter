@@ -3,16 +3,42 @@
 void initializeGameState(GameState* state) {
 	state->score = 0;
 	state->haltScore = 0;
-	state->carsLeft = 3;
 
-	state->position = 0;
+	state->immortalityTime = IMMORTALITY_TIME;
 	state->time = 0;
+	state->position = 0;
 	state->distance = 0;
 	state->speed = 1.0;
 
+	state->spareCars = (SpareCars){ .count = 0, .lastMilestone = 0 };
 	state->roadWidth = (RoadWidth){ .current = DEFAULT_ROAD_WIDTH, .next = DEFAULT_ROAD_WIDTH, .lastUpdate = 0 };
 	state->direction = NONE;
 	state->status = PLAYING;
+}
+
+void updateSpareCars(SpareCars* spareCars, int score) {
+	if (spareCars->lastMilestone == 0 && score >= CAR_MILESTONE_1) {
+		spareCars->lastMilestone = CAR_MILESTONE_1;
+		spareCars->count++;
+	}
+	else if (spareCars->lastMilestone == CAR_MILESTONE_1 && score >= CAR_MILESTONE_2) {
+		spareCars->lastMilestone = CAR_MILESTONE_2;
+		spareCars->count++;
+	}
+	else {
+		int currentMilestone = (int)(score / CAR_MILESTONE_LAST) * CAR_MILESTONE_LAST;
+		if (currentMilestone > spareCars->lastMilestone) {
+			spareCars->lastMilestone = currentMilestone;
+			spareCars->count++;
+		}
+	}
+}
+
+void updateImmortalityTime(double *immortalityTime, double deltaTime) {
+	if (*immortalityTime > 0)
+		*immortalityTime -= deltaTime;
+	else
+		*immortalityTime = 0;
 }
 
 void updateGameState(Application* app, GameState* state) {
@@ -20,6 +46,9 @@ void updateGameState(Application* app, GameState* state) {
 	state->distance += state->speed * SPEED_MULTIPLIER * app->deltaTime;
 	state->position += state->direction * SPEED_MULTIPLIER * app->deltaTime;
 	state->score = (int)(state->distance / SCREEN_HEIGHT * SCORE_MULTIPLIER) * 50;
+
+	updateSpareCars(&state->spareCars, state->score);
+	updateImmortalityTime(&state->immortalityTime, app->deltaTime);
 }
 
 void updateRoadWidth(GameState* state) {
@@ -28,6 +57,21 @@ void updateRoadWidth(GameState* state) {
 		state->roadWidth.lastUpdate = fullscreenDistance;
 		state->roadWidth.current = state->roadWidth.next;
 		state->roadWidth.next = DEFAULT_ROAD_WIDTH + (rand() % 3 - 1) * rand() % 5 * 20;
+	}
+}
+
+void handleOutOfRoad(GameState* state, int backgroundOffset) {
+	if (abs(state->position) > (backgroundOffset >= CAR_Y_POSITION ? state->roadWidth.next : state->roadWidth.current) / 2)
+	{
+		state->position = 0;
+		if (state->immortalityTime > 0) return;
+
+		if (state->spareCars.count == 0) {
+			state->status = QUIT;
+			return;
+		}
+
+		state->spareCars.count--;
 	}
 }
 
@@ -76,8 +120,8 @@ void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* 
 	switch (event->key.keysym.sym) {
 	case SDLK_UP: (*selection)--; break;
 	case SDLK_DOWN: (*selection)++; break;
-	case SDLK_RETURN: 
-		state->status = loadGame(state, saves->list[*selection]) == 1 ? PAUSED : QUIT; 
+	case SDLK_RETURN:
+		state->status = loadGame(state, saves->list[*selection]) == 1 ? PAUSED : QUIT;
 		*selection = 0;
 		break;
 	default: break;
@@ -86,13 +130,17 @@ void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* 
 	*selection = (*selection + saves->count) % saves->count;
 }
 
+void getGameSavePath(char buffer[DATETIME_LENGTH + 12], SaveName save) {
+	sprintf_s(buffer, DATETIME_LENGTH + 12, "%s%s%s", "./saves/", save, ".bin");
+}
+
 int saveGame(GameState* state, Saves* saves) {
 	char datetime[DATETIME_LENGTH], buffer[DATETIME_LENGTH + 12];
 	time_t timestamp = time(NULL);
 	struct tm* time = localtime(&timestamp);
 
 	strftime(datetime, sizeof(datetime), "%F_%H%M%S", time);
-	sprintf_s(buffer, sizeof(buffer), "%s%s%s", "./saves/", datetime, ".bin");
+	getGameSavePath(buffer, datetime);
 	FILE* saveFile = fopen(buffer, "wb");
 	if (saveFile == NULL) return 0;
 
@@ -115,7 +163,7 @@ int saveGame(GameState* state, Saves* saves) {
 
 int loadGame(GameState* state, SaveName save) {
 	char buffer[DATETIME_LENGTH + 12];
-	sprintf_s(buffer, sizeof(buffer), "%s%s%s", "./saves/", save, ".bin");
+	getGameSavePath(buffer, save);
 	FILE* saveFile = fopen(buffer, "rb");
 
 	if (saveFile == NULL) return 0;

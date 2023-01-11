@@ -46,9 +46,7 @@ int main(int argc, char** argv) {
 
 			updateRoadWidth(&state);
 			renderRoad(&app, &state, backgroundOffset, black);
-
-			if (abs(state.position) > (backgroundOffset >= CAR_Y_POSITION ? state.roadWidth.next : state.roadWidth.current) / 2)
-				state.position = 0;
+			handleOutOfRoad(&state, backgroundOffset);
 
 			DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, CAR_Y_POSITION);
 
