@@ -36,3 +36,18 @@ void renderRoad(Application* app, GameState* state, int backgroundOffset, int co
 	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.current / 2, backgroundOffset, state->roadWidth.current, SCREEN_HEIGHT - backgroundOffset, color, color);
 	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.next / 2, 0, state->roadWidth.next, backgroundOffset, color, color);
 }
+
+void renderGameSaveSelection(Application* app, char* buffer, int bgColor, int borderColor, int selectionColor, int selection) {
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, 300, borderColor, bgColor);
+
+	sprintf_s(buffer, 128, "Select Game Save you want to Load");
+	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 52, buffer, app->surfaces[CHARSET_s]);
+
+	for (int i = 0; i < app->saves.count; i++)
+	{
+		sprintf_s(buffer, 128, "Save No. %d: %s", i + 1, app->saves.list[i]);
+		if(selection == i)
+			DrawRectangle(app->screen, SCREEN_WIDTH / 2 - 146, 66 + i * 12, 292, 12, borderColor, selectionColor);
+		DrawString(app->screen, SCREEN_WIDTH / 2 - 142, 68 + i * 12, buffer, app->surfaces[CHARSET_s]);
+	}
+}

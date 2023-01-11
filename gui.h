@@ -12,3 +12,4 @@ void renderFunctionalities(Application* app, char* buffer, int bgColor, int bord
 void renderPause(Application* app, char* buffer);
 void renderBackground(Application* app, int backgroundOffset);
 void renderRoad(Application* app, GameState* state, int backgroundOffset, int color);
+void renderGameSaveSelection(Application* app, char* buffer, int bgColor, int borderColor, int selection);

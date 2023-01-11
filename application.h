@@ -12,11 +12,20 @@
 
 #define CAR_Y_POSITION SCREEN_HEIGHT * 3 / 4
 
+#define DATETIME_LENGTH 18
+
 typedef enum Surfaces {
 	CHARSET_s,
 	CAR_s,
 	GRASS_s
 } Surfaces;
+
+typedef char SaveName[DATETIME_LENGTH];
+
+typedef struct Saves {
+	int count;
+	SaveName* list;
+} Saves;
 
 typedef struct Application {
 	SDL_Renderer* renderer;
@@ -25,9 +34,11 @@ typedef struct Application {
 	SDL_Texture* screenTexture;
 	SDL_Surface* surfaces[SURFACES_COUNT];
 	double deltaTime;
+	Saves saves;
 } Application;
 
 int initializeApplication(Application* app);
 void closeApplication(Application* app);
 int initializeSurfaces(Application* app);
 void updateScreen(Application* app);
+void createSaveList(Saves* saves);

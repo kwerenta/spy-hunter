@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
 	int red = SDL_MapRGB(app.screen->format, 0xFF, 0x00, 0x00);
 	int blue = SDL_MapRGB(app.screen->format, 0x11, 0x11, 0xCC);
 
-	int currTick, backgroundOffset, prevTick = SDL_GetTicks();
+	int selection = 0, backgroundOffset, currTick, prevTick = SDL_GetTicks();
 
 	while (state.status != QUIT) {
 		currTick = SDL_GetTicks();
@@ -58,15 +58,19 @@ int main(int argc, char** argv) {
 		else if (state.status == PAUSED) {
 			renderPause(&app, buffer);
 		}
+		else if (state.status == SAVE_SELECTION)
+			renderGameSaveSelection(&app, buffer, blue, red, black, selection);
 
 		updateScreen(&app);
 
 		while (SDL_PollEvent(&event)) {	
-			handleControls(&state, &event);
+			handleControls(&state, &event, &(app.saves));
 			if (event.type == SDL_QUIT)
 				state.status = QUIT;
 			else if (state.status == PLAYING)
 				handleMovement(&state, &event);
+			else if (state.status == SAVE_SELECTION)
+				handleSaveSelection(&state, &event, &(app.saves), & selection);
 		};
 	};
 

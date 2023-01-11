@@ -23,13 +23,15 @@ int initializeApplication(Application* app) {
 
 	SDL_ShowCursor(SDL_DISABLE);
 
+	app->saves = (Saves){ .count = 0, .list = NULL };
+
 	return 1;
 }
 
 void loadBMP(SDL_Surface* surfaces[SURFACES_COUNT], Surfaces name, char* path) {
 	surfaces[name] = SDL_LoadBMP(path);
 
-	if (surfaces[name] == NULL) 
+	if (surfaces[name] == NULL)
 		printf("SDL_LoadBMP(%s) error: %s\n", path, SDL_GetError());
 }
 
@@ -70,4 +72,22 @@ void updateScreen(Application* app) {
 	SDL_UpdateTexture(app->screenTexture, NULL, app->screen->pixels, app->screen->pitch);
 	SDL_RenderCopy(app->renderer, app->screenTexture, NULL, NULL);
 	SDL_RenderPresent(app->renderer);
+}
+
+void createSaveList(Saves* saves) {
+	FILE* saveListFile = fopen("./saves/list.bin", "rb");
+	if (saves->list == NULL && saveListFile != NULL) {
+		int prevSavesCount = saves->count;
+		int saveCount = fread(saves, sizeof(Saves), 1, saveListFile);
+
+		saves->count += prevSavesCount;
+		saves->list = (SaveName*)malloc(saves->count * sizeof(SaveName));
+		if (saves->list != NULL) {
+			saveCount += fread(saves->list, sizeof(SaveName), saves->count, saveListFile);
+			return;
+		}
+	}
+
+	SaveName* newPtr = (SaveName*)realloc(saves->list, saves->count * sizeof(SaveName));
+	saves->list = newPtr;
 }

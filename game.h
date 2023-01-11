@@ -1,6 +1,7 @@
 #pragma once
 
 #include <time.h>
+#include <string.h>
 
 #include "application.h"
 
@@ -13,9 +14,10 @@ typedef enum {
 	RIGHT = 1
 } H_Direction;
 
-typedef enum {
+typedef enum GameStatus {
 	PLAYING,
 	PAUSED,
+	SAVE_SELECTION,
 	QUIT
 } GameStatus;
 
@@ -41,7 +43,8 @@ typedef struct GameState {
 void initializeGameState(GameState* state);
 void updateGameState(Application* app, GameState* state);
 void updateRoadWidth(GameState* state, int backgroundOffset);
-void handleControls(GameState* state, SDL_Event* event);
+void handleControls(GameState* state, SDL_Event* event, Saves* saves);
 void handleMovement(GameState* state, SDL_Event* event);
-int loadGame(GameState* state);
-int saveGame(GameState* state);
+void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* selection);
+int loadGame(GameState* state, SaveName save);
+int saveGame(GameState* state, Saves* saves);
