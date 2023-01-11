@@ -19,7 +19,7 @@ void updateGameState(Application* app, GameState* state) {
 	state->time += app->deltaTime;
 	state->distance += state->speed * SPEED_MULTIPLIER * app->deltaTime;
 	state->position += state->direction * SPEED_MULTIPLIER * app->deltaTime;
-	state->score = (int)(state->distance / SCREEN_HEIGHT) * 50;
+	state->score = (int)(state->distance / SCREEN_HEIGHT * SCORE_MULTIPLIER) * 50;
 }
 
 void updateRoadWidth(GameState* state) {
@@ -48,7 +48,7 @@ void handleMovement(GameState* state, SDL_Event* event) {
 	switch (event->type) {
 	case SDL_KEYDOWN:
 		switch (event->key.keysym.sym) {
-		case SDLK_UP: state->speed = 2.0; break;
+		case SDLK_UP: state->speed = 1.75; break;
 		case SDLK_DOWN: state->speed = 0.3; break;
 		case SDLK_RIGHT: state->direction = RIGHT; break;
 		case SDLK_LEFT: state->direction = LEFT; break;

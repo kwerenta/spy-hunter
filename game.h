@@ -5,7 +5,8 @@
 
 #include "application.h"
 
-#define SPEED_MULTIPLIER 200
+#define SCORE_MULTIPLIER 3.5
+#define SPEED_MULTIPLIER 400
 #define DEFAULT_ROAD_WIDTH 200
 
 typedef enum {
