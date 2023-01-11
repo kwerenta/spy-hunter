@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
 			backgroundOffset = (int)state.distance % SCREEN_HEIGHT;
 			renderBackground(&app, backgroundOffset);
 
-			updateRoadWidth(&state, backgroundOffset);
+			updateRoadWidth(&state);
 			renderRoad(&app, &state, backgroundOffset, black);
 
 			if (abs(state.position) > (backgroundOffset >= CAR_Y_POSITION ? state.roadWidth.next : state.roadWidth.current) / 2)

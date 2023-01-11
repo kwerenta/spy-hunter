@@ -10,7 +10,7 @@ void initializeGameState(GameState* state) {
 	state->distance = 0;
 	state->speed = 1.0;
 
-	state->roadWidth = (RoadWidth){ .current = DEFAULT_ROAD_WIDTH, .next = DEFAULT_ROAD_WIDTH, .shouldUpdate = 0 };
+	state->roadWidth = (RoadWidth){ .current = DEFAULT_ROAD_WIDTH, .next = DEFAULT_ROAD_WIDTH, .lastUpdate = 0 };
 	state->direction = NONE;
 	state->status = PLAYING;
 }
@@ -22,14 +22,10 @@ void updateGameState(Application* app, GameState* state) {
 	state->score = (int)(state->distance / SCREEN_HEIGHT) * 50;
 }
 
-void updateRoadWidth(GameState* state, int backgroundOffset) {
-	if (backgroundOffset != 0) {
-		state->roadWidth.shouldUpdate = 1;
-		return;
-	}
-
-	if (state->roadWidth.shouldUpdate == 1) {
-		state->roadWidth.shouldUpdate = 0;
+void updateRoadWidth(GameState* state) {
+	int fullscreenDistance = (int)(state->distance / SCREEN_HEIGHT);
+	if (state->roadWidth.lastUpdate != fullscreenDistance) {
+		state->roadWidth.lastUpdate = fullscreenDistance;
 		state->roadWidth.current = state->roadWidth.next;
 		state->roadWidth.next = DEFAULT_ROAD_WIDTH + (rand() % 3 - 1) * rand() % 5 * 20;
 	}

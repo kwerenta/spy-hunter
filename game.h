@@ -24,7 +24,7 @@ typedef enum GameStatus {
 typedef struct RoadWidth {
 	int current;
 	int next;
-	int shouldUpdate;
+	int lastUpdate;
 } RoadWidth;
 
 typedef struct GameState {
@@ -42,7 +42,7 @@ typedef struct GameState {
 
 void initializeGameState(GameState* state);
 void updateGameState(Application* app, GameState* state);
-void updateRoadWidth(GameState* state, int backgroundOffset);
+void updateRoadWidth(GameState* state);
 void handleControls(GameState* state, SDL_Event* event, Saves* saves);
 void handleMovement(GameState* state, SDL_Event* event);
 void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* selection);
