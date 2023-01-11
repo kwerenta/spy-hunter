@@ -24,6 +24,7 @@ int initializeApplication(Application* app) {
 	SDL_ShowCursor(SDL_DISABLE);
 
 	app->saves = (Saves){ .count = 0, .list = NULL };
+	app->scoreboard = (Scoreboard){ .count = 0, .list = NULL };
 
 	return 1;
 }
@@ -90,4 +91,33 @@ void createSaveList(Saves* saves) {
 
 	SaveName* newPtr = (SaveName*)realloc(saves->list, saves->count * sizeof(SaveName));
 	saves->list = newPtr;
+}
+
+void createScoreboard(Scoreboard* scoreboard) {
+	FILE* scoreboardFile = fopen("./scoreboard.bin", "rb");
+	if (scoreboard->list == NULL && scoreboardFile != NULL) {
+		int prevResultsCount = scoreboard->count;
+		int saveCount = fread(scoreboard, sizeof(Scoreboard), 1, scoreboardFile);
+
+		scoreboard->count += prevResultsCount;
+		scoreboard->list = (Result*)malloc(scoreboard->count * sizeof(Result));
+		if (scoreboard->list != NULL) {
+			saveCount += fread(scoreboard->list, sizeof(Result), scoreboard->count, scoreboardFile);
+			return;
+		}
+	}
+
+	Result* newPtr = (Result*)realloc(scoreboard->list, scoreboard->count * sizeof(Result));
+	scoreboard->list = newPtr;
+}
+
+void saveScoreboard(Scoreboard* scoreboard) {
+	FILE* scoreboardFile = fopen("./scoreboard.bin", "wb");
+	if (scoreboardFile == NULL) return 0;
+
+	int saveCount = fwrite(scoreboard, sizeof(Scoreboard), 1, scoreboardFile);
+	saveCount += fwrite(scoreboard->list, sizeof(Result), scoreboard->count, scoreboardFile);
+	fclose(scoreboardFile);
+
+	return saveCount == 1 + scoreboard->count;
 }

@@ -53,22 +53,27 @@ int main(int argc, char** argv) {
 			renderLegend(&app, &state, buffer, blue, red);
 			renderFunctionalities(&app, buffer, blue, red);
 		}
-		else if (state.status == PAUSED) {
+		else if (state.status == GAMEOVER) 
+			renderGameOver(&app, &state, buffer, blue, red, black, selection);
+		else if (state.status == PAUSED) 
 			renderPause(&app, buffer);
-		}
 		else if (state.status == SAVE_SELECTION)
 			renderGameSaveSelection(&app, buffer, blue, red, black, selection);
+		else if (state.status == SCOREBOARD)
+			renderScoreboard(&app, &state, buffer, blue, red);
 
 		updateScreen(&app);
 
-		while (SDL_PollEvent(&event)) {	
+		while (SDL_PollEvent(&event)) {
 			handleControls(&state, &event, &(app.saves));
 			if (event.type == SDL_QUIT)
 				state.status = QUIT;
 			else if (state.status == PLAYING)
 				handleMovement(&state, &event);
 			else if (state.status == SAVE_SELECTION)
-				handleSaveSelection(&state, &event, &(app.saves), & selection);
+				handleSaveSelection(&state, &event, &app.saves, &selection);
+			else if (state.status == GAMEOVER)
+				handleGameOver(&state, &event, &app.scoreboard, &selection);
 		};
 	};
 

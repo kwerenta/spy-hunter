@@ -27,6 +27,16 @@ typedef struct Saves {
 	SaveName* list;
 } Saves;
 
+typedef struct Result {
+	double time;
+	int score;
+} Result;
+
+typedef struct Scoreboard {
+	int count;
+	Result* list;
+} Scoreboard;
+
 typedef struct Application {
 	SDL_Renderer* renderer;
 	SDL_Window* window;
@@ -35,6 +45,7 @@ typedef struct Application {
 	SDL_Surface* surfaces[SURFACES_COUNT];
 	double deltaTime;
 	Saves saves;
+	Scoreboard scoreboard;
 } Application;
 
 int initializeApplication(Application* app);
@@ -42,3 +53,5 @@ void closeApplication(Application* app);
 int initializeSurfaces(Application* app);
 void updateScreen(Application* app);
 void createSaveList(Saves* saves);
+void createScoreboard(Scoreboard* scoreboard);
+void saveScoreboard(Scoreboard* scoreboard);

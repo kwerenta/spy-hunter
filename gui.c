@@ -57,3 +57,39 @@ void renderGameSaveSelection(Application* app, char* buffer, int bgColor, int bo
 		DrawString(app->screen, SCREEN_WIDTH / 2 - 142, 68 + i * 12, buffer, app->surfaces[CHARSET_s]);
 	}
 }
+
+void renderGameOver(Application* app, GameState* state, char* buffer, int bgColor, int borderColor, int selectionColor, int selection) {
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, 300, borderColor, bgColor);
+
+	sprintf_s(buffer, 128, "GAME OVER");
+	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 52, buffer, app->surfaces[CHARSET_s]);	
+	sprintf_s(buffer, 128, "Your result:");
+	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 64, buffer, app->surfaces[CHARSET_s]);
+	
+	sprintf_s(buffer, 128, "TIME: %.2lf", state->time);
+	DrawString(app->screen, SCREEN_WIDTH / 2 - 142, 76, buffer, app->surfaces[CHARSET_s]);
+	sprintf_s(buffer, 128, "SCORE: %d", state->score);
+	DrawString(app->screen, SCREEN_WIDTH / 2 + 142 - strlen(buffer) * 8, 76, buffer, app->surfaces[CHARSET_s]);
+
+	sprintf_s(buffer, 128, "Do you want to save your result?");
+	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 92, buffer, app->surfaces[CHARSET_s]);
+
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 + (selection == 0 ? - 16 - 3 * 8 : 8), 102, (selection == 0 ? 3 * 8 + 8 : 2 * 8 + 8), 12, borderColor, selectionColor);
+	sprintf_s(buffer, 128, "Yes");
+	DrawString(app->screen, SCREEN_WIDTH / 2 - 12 - strlen(buffer) * 8, 104, buffer, app->surfaces[CHARSET_s]);
+	sprintf_s(buffer, 128, "No");
+	DrawString(app->screen, SCREEN_WIDTH / 2 + 12, 104, buffer, app->surfaces[CHARSET_s]);
+}
+
+void renderScoreboard(Application* app, GameState* state, char* buffer, int bgColor, int borderColor) {
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, 300, borderColor, bgColor);
+
+	sprintf_s(buffer, 128, "SCOREBOARD");
+	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 52, buffer, app->surfaces[CHARSET_s]);
+
+	for (int i = 0; i < app->scoreboard.count; i++)
+	{
+		sprintf_s(buffer, 128, "%d. TIME: %.2lf, SCORE: %d", i + 1, app->scoreboard.list[i].time, app->scoreboard.list[i].score);
+		DrawString(app->screen, SCREEN_WIDTH / 2 - 142, 68 + i * 12, buffer, app->surfaces[CHARSET_s]);
+	}
+}

@@ -34,7 +34,7 @@ void updateSpareCars(SpareCars* spareCars, int score) {
 	}
 }
 
-void updateImmortalityTime(double *immortalityTime, double deltaTime) {
+void updateImmortalityTime(double* immortalityTime, double deltaTime) {
 	if (*immortalityTime > 0)
 		*immortalityTime -= deltaTime;
 	else
@@ -67,7 +67,7 @@ void handleOutOfRoad(GameState* state, int backgroundOffset) {
 		if (state->immortalityTime > 0) return;
 
 		if (state->spareCars.count == 0) {
-			state->status = QUIT;
+			state->status = GAMEOVER;
 			return;
 		}
 
@@ -80,6 +80,7 @@ void handleControls(GameState* state, SDL_Event* event, Saves* saves) {
 		switch (event->key.keysym.sym) {
 		case SDLK_ESCAPE: state->status = QUIT; break;
 		case SDLK_p: state->status = state->status == PAUSED ? PLAYING : PAUSED; break;
+		case SDLK_f: state->status = GAMEOVER; break;
 		case SDLK_n: initializeGameState(state); break;
 		case SDLK_s: state->status = saveGame(state, saves) == 1 ? PAUSED : QUIT; break;
 		case SDLK_l: createSaveList(saves); state->status = SAVE_SELECTION; break;
@@ -128,6 +129,28 @@ void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* 
 	}
 
 	*selection = (*selection + saves->count) % saves->count;
+}
+
+void handleGameOver(GameState* state, SDL_Event* event, Scoreboard* scoreboard, int* selection) {
+	if (event->type != SDL_KEYDOWN) return;
+
+	switch (event->key.keysym.sym) {
+	case SDLK_LEFT: case SDLK_RIGHT: *selection = *selection == 0 ? 1 : 0; break;
+	case SDLK_RETURN:
+		if (*selection == 0) {
+			scoreboard->count++;
+			createScoreboard(scoreboard);
+			scoreboard->list[scoreboard->count - 1] = (Result){ .score = state->score, .time = state->time };
+			saveScoreboard(scoreboard);
+		}
+		else {
+			createScoreboard(scoreboard);
+		}
+		state->status = SCOREBOARD;
+		*selection = 0;
+		break;
+	default: break;
+	}
 }
 
 void getGameSavePath(char buffer[DATETIME_LENGTH + 12], SaveName save) {

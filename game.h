@@ -24,6 +24,8 @@ typedef enum GameStatus {
 	PLAYING,
 	PAUSED,
 	SAVE_SELECTION,
+	SCOREBOARD,
+	GAMEOVER,
 	QUIT
 } GameStatus;
 
@@ -59,5 +61,6 @@ void handleOutOfRoad(GameState* state, int backgroundOffset);
 void handleControls(GameState* state, SDL_Event* event, Saves* saves);
 void handleMovement(GameState* state, SDL_Event* event);
 void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* selection);
+void handleGameOver(GameState* state, SDL_Event* event, Scoreboard* scoreboard, int* selection);
 int loadGame(GameState* state, SaveName save);
 int saveGame(GameState* state, Saves* saves);
