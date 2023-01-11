@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #include"./SDL2-2.0.10/include/SDL.h"
 #include"./SDL2-2.0.10/include/SDL_main.h"
@@ -55,3 +56,4 @@ void updateScreen(Application* app);
 void createSaveList(Saves* saves);
 void createScoreboard(Scoreboard* scoreboard);
 void saveScoreboard(Scoreboard* scoreboard);
+void sortScoreboard(Scoreboard* scoreboard, int sortBy);

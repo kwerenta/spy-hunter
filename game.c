@@ -79,8 +79,6 @@ void handleControls(GameState* state, SDL_Event* event, Saves* saves) {
 	if (event->type == SDL_KEYDOWN) {
 		switch (event->key.keysym.sym) {
 		case SDLK_ESCAPE: state->status = QUIT; break;
-		case SDLK_p: state->status = state->status == PAUSED ? PLAYING : PAUSED; break;
-		case SDLK_f: state->status = GAMEOVER; break;
 		case SDLK_n: initializeGameState(state); break;
 		case SDLK_s: state->status = saveGame(state, saves) == 1 ? PAUSED : QUIT; break;
 		case SDLK_l: createSaveList(saves); state->status = SAVE_SELECTION; break;
@@ -89,10 +87,12 @@ void handleControls(GameState* state, SDL_Event* event, Saves* saves) {
 	}
 };
 
-void handleMovement(GameState* state, SDL_Event* event) {
+void handleGameplay(GameState* state, SDL_Event* event) {
 	switch (event->type) {
 	case SDL_KEYDOWN:
 		switch (event->key.keysym.sym) {
+		case SDLK_p: state->status = state->status == PAUSED ? PLAYING : PAUSED; break;
+		case SDLK_f: state->status = GAMEOVER; break;
 		case SDLK_UP: state->speed = 1.75; break;
 		case SDLK_DOWN: state->speed = 0.3; break;
 		case SDLK_RIGHT: state->direction = RIGHT; break;
@@ -149,6 +149,17 @@ void handleGameOver(GameState* state, SDL_Event* event, Scoreboard* scoreboard, 
 		state->status = SCOREBOARD;
 		*selection = 0;
 		break;
+	default: break;
+	}
+}
+
+void handleScoreboard(GameState* state, SDL_Event* event, Scoreboard* scoreboard) {
+	if (event->type != SDL_KEYDOWN) return;
+
+	switch (event->key.keysym.sym) {
+	case SDLK_p: sortScoreboard(scoreboard, 0); break;
+	case SDLK_t: sortScoreboard(scoreboard, 1); break;
+	case SDLK_RETURN: initializeGameState(state); break;
 	default: break;
 	}
 }

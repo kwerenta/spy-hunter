@@ -92,4 +92,12 @@ void renderScoreboard(Application* app, GameState* state, char* buffer, int bgCo
 		sprintf_s(buffer, 128, "%d. TIME: %.2lf, SCORE: %d", i + 1, app->scoreboard.list[i].time, app->scoreboard.list[i].score);
 		DrawString(app->screen, SCREEN_WIDTH / 2 - 142, 68 + i * 12, buffer, app->surfaces[CHARSET_s]);
 	}
+
+	sprintf_s(buffer, 128, "t - Sort by time");
+	DrawString(app->screen, SCREEN_WIDTH / 2 - 142, 76 + app->scoreboard.count * 12, buffer, app->surfaces[CHARSET_s]);
+	sprintf_s(buffer, 128, "p - Sort by points");
+	DrawString(app->screen, SCREEN_WIDTH / 2 + 142 - strlen(buffer) * 8, 76 + app->scoreboard.count * 12, buffer, app->surfaces[CHARSET_s]);
+
+	sprintf_s(buffer, 128, "Press ENTER to start new game");
+	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 88 + app->scoreboard.count * 12, buffer, app->surfaces[CHARSET_s]);
 }

@@ -69,11 +69,13 @@ int main(int argc, char** argv) {
 			if (event.type == SDL_QUIT)
 				state.status = QUIT;
 			else if (state.status == PLAYING)
-				handleMovement(&state, &event);
+				handleGameplay(&state, &event);
 			else if (state.status == SAVE_SELECTION)
 				handleSaveSelection(&state, &event, &app.saves, &selection);
 			else if (state.status == GAMEOVER)
 				handleGameOver(&state, &event, &app.scoreboard, &selection);
+			else if (state.status == SCOREBOARD)
+				handleScoreboard(&state, &event, &app.scoreboard);
 		};
 	};
 
