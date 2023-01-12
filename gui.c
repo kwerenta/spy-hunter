@@ -59,7 +59,7 @@ void renderGameSaveSelection(Application* app, char* buffer, int bgColor, int bo
 }
 
 void renderGameOver(Application* app, GameState* state, char* buffer, int bgColor, int borderColor, int selectionColor, int selection) {
-	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, 300, borderColor, bgColor);
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, 80, borderColor, bgColor);
 
 	sprintf_s(buffer, 128, "GAME OVER");
 	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 52, buffer, app->surfaces[CHARSET_s]);	
@@ -82,7 +82,7 @@ void renderGameOver(Application* app, GameState* state, char* buffer, int bgColo
 }
 
 void renderScoreboard(Application* app, GameState* state, char* buffer, int bgColor, int borderColor) {
-	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, 300, borderColor, bgColor);
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, app->scoreboard.count * 12 + 80, borderColor, bgColor);
 
 	sprintf_s(buffer, 128, "SCOREBOARD");
 	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 52, buffer, app->surfaces[CHARSET_s]);
@@ -94,10 +94,10 @@ void renderScoreboard(Application* app, GameState* state, char* buffer, int bgCo
 	}
 
 	sprintf_s(buffer, 128, "t - Sort by time");
-	DrawString(app->screen, SCREEN_WIDTH / 2 - 142, 76 + app->scoreboard.count * 12, buffer, app->surfaces[CHARSET_s]);
+	DrawString(app->screen, SCREEN_WIDTH / 2 - 142, 90 + app->scoreboard.count * 12, buffer, app->surfaces[CHARSET_s]);
 	sprintf_s(buffer, 128, "p - Sort by points");
-	DrawString(app->screen, SCREEN_WIDTH / 2 + 142 - strlen(buffer) * 8, 76 + app->scoreboard.count * 12, buffer, app->surfaces[CHARSET_s]);
+	DrawString(app->screen, SCREEN_WIDTH / 2 + 142 - strlen(buffer) * 8, 90 + app->scoreboard.count * 12, buffer, app->surfaces[CHARSET_s]);
 
 	sprintf_s(buffer, 128, "Press ENTER to start new game");
-	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 88 + app->scoreboard.count * 12, buffer, app->surfaces[CHARSET_s]);
+	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 102 + app->scoreboard.count * 12, buffer, app->surfaces[CHARSET_s]);
 }

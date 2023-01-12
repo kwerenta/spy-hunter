@@ -122,27 +122,16 @@ void saveScoreboard(Scoreboard* scoreboard) {
 	return saveCount == 1 + scoreboard->count;
 }
 
-int sortByScore(const Result* a, const Result* b) {
-	if (b->score > a->score)
-		return 1;
-	else if (b->score < a->score)
-		return -1;
-	else
-		return sortByTime(a, b);
+int compareScore(const Result* a, const Result* b) {
+	if (b->score == a->score) return compareTime(a, b);
+	else return b->score - a->score;
 }
 
-int sortByTime(const Result* a, const Result* b) {
-	if (b->time > a->time)
-		return 1;
-	else if (b->time < a->time)
-		return -1;
-	else
-		return 0;
+int compareTime(const Result* a, const Result* b) {
+	if (b->time == a->time) return compareScore(a, b);
+	else return b->time - a->time > 0;
 }
 
 void sortScoreboard(Scoreboard* scoreboard, int sortBy) {
-	if(sortBy == 0)
-		qsort(scoreboard->list, scoreboard->count, sizeof(Result), sortByScore);
-	else
-		qsort(scoreboard->list, scoreboard->count, sizeof(Result), sortByTime);
+	qsort(scoreboard->list, scoreboard->count, sizeof(Result), sortBy == 0 ? compareScore : compareTime);
 }
