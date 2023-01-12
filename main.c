@@ -42,6 +42,8 @@ int main(int argc, char** argv) {
 			updateGameState(&app, &state);
 
 			backgroundOffset = (int)state.distance % SCREEN_HEIGHT;
+			updateAI(&app, &state, backgroundOffset);
+
 			renderBackground(&app, backgroundOffset);
 
 			updateRoadWidth(&state);
@@ -49,6 +51,8 @@ int main(int argc, char** argv) {
 			handleOutOfRoad(&state, backgroundOffset);
 
 			DrawSurface(app.screen, app.surfaces[CAR_s], SCREEN_WIDTH / 2 + state.position, CAR_Y_POSITION);
+
+			renderAI(&app, &state);
 
 			renderLegend(&app, &state, buffer, blue, red);
 			renderFunctionalities(&app, buffer, blue, red);

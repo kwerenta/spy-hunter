@@ -8,6 +8,7 @@
 #define SCORE_MULTIPLIER 3.5
 #define SPEED_MULTIPLIER 400
 #define DEFAULT_ROAD_WIDTH 200
+#define AI_CARS_COUNT 4
 
 #define IMMORTALITY_TIME 99
 #define CAR_MILESTONE_1 7000
@@ -40,6 +41,23 @@ typedef struct SpareCars {
 	double lastMilestone;
 } SpareCars;
 
+typedef struct Position {
+	double x;
+	double y;
+} Position;
+
+typedef enum AICar_Type {
+	ENEMY,
+	NON_ENEMY
+} AICar_Type;
+
+typedef struct AICar {
+	int hp;
+	double speed;
+	Position position;
+	AICar_Type type;
+} AICar;
+
 typedef struct GameState {
 	int score;
 	int haltScore;
@@ -49,6 +67,7 @@ typedef struct GameState {
 	double distance;
 	double speed;
 	SpareCars spareCars;
+	AICar aiCars[AI_CARS_COUNT];
 	RoadWidth roadWidth;
 	H_Direction direction;
 	GameStatus status;
@@ -57,6 +76,7 @@ typedef struct GameState {
 void initializeGameState(GameState* state);
 void updateGameState(Application* app, GameState* state);
 void updateRoadWidth(GameState* state);
+void updateAI(Application* app, GameState* state, int backgroundOffset);
 void handleOutOfRoad(GameState* state, int backgroundOffset);
 void handleControls(GameState* state, SDL_Event* event, Saves* saves);
 void handleMovement(GameState* state, SDL_Event* event);

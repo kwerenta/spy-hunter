@@ -9,7 +9,7 @@
 #define SCREEN_WIDTH	640
 #define SCREEN_HEIGHT	480
 
-#define SURFACES_COUNT 3
+#define SURFACES_COUNT 5
 
 #define CAR_Y_POSITION SCREEN_HEIGHT * 3 / 4
 
@@ -18,6 +18,8 @@
 typedef enum Surfaces {
 	CHARSET_s,
 	CAR_s,
+	ENEMY_CAR_s,
+	NON_ENEMY_CAR_s,
 	GRASS_s
 } Surfaces;
 

@@ -10,6 +10,9 @@ void initializeGameState(GameState* state) {
 	state->distance = 0;
 	state->speed = 1.0;
 
+	for (int i = 0; i < AI_CARS_COUNT; i++)
+		state->aiCars[i].hp = 0;
+
 	state->spareCars = (SpareCars){ .count = 0, .lastMilestone = 0 };
 	state->roadWidth = (RoadWidth){ .current = DEFAULT_ROAD_WIDTH, .next = DEFAULT_ROAD_WIDTH, .lastUpdate = 0 };
 	state->direction = NONE;
@@ -60,6 +63,44 @@ void updateRoadWidth(GameState* state) {
 	}
 }
 
+void createAICar(AICar *aiCar) {
+	aiCar->type = rand() % 2 ? ENEMY : NON_ENEMY;
+	aiCar->hp = aiCar->type == NON_ENEMY ? 3 : 5;
+	aiCar->speed = 1.0 + (rand() % 2 - 1) * rand() % 3 / 10.0;
+	aiCar->position.x = rand() % 5 * (rand() % 2 + 1) * 10;
+	aiCar->position.y = SCREEN_HEIGHT / 3 + rand() % 5 * 10;
+}
+
+void updateAI(Application* app, GameState* state, int backgroundOffset) {
+	int fullscreenDistance = (int)(state->distance / SCREEN_HEIGHT);
+	int firstFreeIndex = 0;
+
+	for (int i = 0; i < AI_CARS_COUNT; i++)
+	{
+		AICar* aiCar = &state->aiCars[i];
+		if (aiCar->hp == 0) continue;
+		aiCar->position.y -= app->deltaTime * (aiCar->speed - state->speed) * SPEED_MULTIPLIER;
+
+		// Check if out of screen (top or bottom)
+		int surfaceHeight = app->surfaces[aiCar->type == NON_ENEMY ? NON_ENEMY_CAR_s : ENEMY_CAR_s]->h;
+		if (aiCar->position.y > SCREEN_HEIGHT + surfaceHeight ||
+			aiCar->position.y < - surfaceHeight)
+		{
+			aiCar->hp = 0;
+			continue;
+		}
+
+		if (i == firstFreeIndex) firstFreeIndex++;
+
+		if(state->roadWidth.lastUpdate != fullscreenDistance)
+			aiCar->position.x = rand() % 5 * 10;
+	}
+
+	if (state->roadWidth.lastUpdate != fullscreenDistance && firstFreeIndex < AI_CARS_COUNT && rand() % 3 == 0) {
+		createAICar(&state->aiCars[firstFreeIndex]);
+	}
+}
+
 void handleOutOfRoad(GameState* state, int backgroundOffset) {
 	if (abs(state->position) > (backgroundOffset >= CAR_Y_POSITION ? state->roadWidth.next : state->roadWidth.current) / 2)
 	{
@@ -78,6 +119,7 @@ void handleOutOfRoad(GameState* state, int backgroundOffset) {
 void handleControls(GameState* state, SDL_Event* event, Saves* saves) {
 	if (event->type == SDL_KEYDOWN) {
 		switch (event->key.keysym.sym) {
+		case SDLK_p: state->status = state->status == PAUSED ? PLAYING : PAUSED; break;
 		case SDLK_ESCAPE: state->status = QUIT; break;
 		case SDLK_n: initializeGameState(state); break;
 		case SDLK_s: state->status = saveGame(state, saves) == 1 ? PAUSED : QUIT; break;
@@ -91,7 +133,6 @@ void handleGameplay(GameState* state, SDL_Event* event) {
 	switch (event->type) {
 	case SDL_KEYDOWN:
 		switch (event->key.keysym.sym) {
-		case SDLK_p: state->status = state->status == PAUSED ? PLAYING : PAUSED; break;
 		case SDLK_f: state->status = GAMEOVER; break;
 		case SDLK_UP: state->speed = 1.75; break;
 		case SDLK_DOWN: state->speed = 0.3; break;

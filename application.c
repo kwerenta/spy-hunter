@@ -39,6 +39,8 @@ void loadBMP(SDL_Surface* surfaces[SURFACES_COUNT], Surfaces name, char* path) {
 int initializeSurfaces(Application* app) {
 	loadBMP(app->surfaces, CHARSET_s, "./cs8x8.bmp");
 	loadBMP(app->surfaces, CAR_s, "./car.bmp");
+	loadBMP(app->surfaces, ENEMY_CAR_s, "./enemy_car.bmp");
+	loadBMP(app->surfaces, NON_ENEMY_CAR_s, "./non_enemy_car.bmp");
 	loadBMP(app->surfaces, GRASS_s, "./bg.bmp");
 
 	// Check if all surfaces loaded correctly
