@@ -77,6 +77,7 @@ void initializeGameState(GameState* state);
 void updateGameState(Application* app, GameState* state);
 void updateRoadWidth(GameState* state);
 void updateAI(Application* app, GameState* state, int backgroundOffset);
+void handleCollisions(Application* app, GameState* state);
 void handleOutOfRoad(GameState* state, int backgroundOffset);
 void handleControls(GameState* state, SDL_Event* event, Saves* saves);
 void handleMovement(GameState* state, SDL_Event* event);

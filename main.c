@@ -44,6 +44,8 @@ int main(int argc, char** argv) {
 			backgroundOffset = (int)state.distance % SCREEN_HEIGHT;
 			updateAI(&app, &state, backgroundOffset);
 
+			handleCollisions(&app, &state);
+
 			renderBackground(&app, backgroundOffset);
 
 			updateRoadWidth(&state);

@@ -44,6 +44,28 @@ void updateImmortalityTime(double* immortalityTime, double deltaTime) {
 		*immortalityTime = 0;
 }
 
+void handleCollisions(Application* app, GameState* state) {
+	for (int i = 0; i < AI_CARS_COUNT; i++) {
+		AICar* aiCar = &state->aiCars[i];
+		if (aiCar->hp == 0) continue;
+
+		int SurfaceWidth = app->surfaces[aiCar->type == NON_ENEMY ? NON_ENEMY_CAR_s : ENEMY_CAR_s]->w;
+		int surfaceHeight = app->surfaces[aiCar->type == NON_ENEMY ? NON_ENEMY_CAR_s : ENEMY_CAR_s]->h;
+
+		if (aiCar->position.x + SurfaceWidth >= state->position
+			&& aiCar->position.x - SurfaceWidth <= state->position
+			&& aiCar->position.y <= CAR_Y_POSITION + surfaceHeight
+			&& aiCar->position.y >= CAR_Y_POSITION - surfaceHeight)
+		{
+			state->position -= 20 * state->direction;
+			aiCar->position.x += 30 * state->direction;
+
+			state->direction = NONE;
+			state->speed = state->speed * 0.75;
+		}
+	}
+}
+
 void updateGameState(Application* app, GameState* state) {
 	state->time += app->deltaTime;
 	state->distance += state->speed * SPEED_MULTIPLIER * app->deltaTime;
@@ -63,7 +85,7 @@ void updateRoadWidth(GameState* state) {
 	}
 }
 
-void createAICar(AICar *aiCar) {
+void createAICar(AICar* aiCar) {
 	aiCar->type = rand() % 2 ? ENEMY : NON_ENEMY;
 	aiCar->hp = aiCar->type == NON_ENEMY ? 3 : 5;
 	aiCar->speed = 1.0 + (rand() % 2 - 1) * rand() % 3 / 10.0;
@@ -84,16 +106,22 @@ void updateAI(Application* app, GameState* state, int backgroundOffset) {
 		// Check if out of screen (top or bottom)
 		int surfaceHeight = app->surfaces[aiCar->type == NON_ENEMY ? NON_ENEMY_CAR_s : ENEMY_CAR_s]->h;
 		if (aiCar->position.y > SCREEN_HEIGHT + surfaceHeight ||
-			aiCar->position.y < - surfaceHeight)
+			aiCar->position.y < -surfaceHeight)
 		{
+			aiCar->hp = 0;
+			continue;
+		}
+
+		// Check if out of road
+		if (abs(aiCar->position.x) > (backgroundOffset >= aiCar->position.y ? state->roadWidth.next : state->roadWidth.current) / 2) {
 			aiCar->hp = 0;
 			continue;
 		}
 
 		if (i == firstFreeIndex) firstFreeIndex++;
 
-		if(state->roadWidth.lastUpdate != fullscreenDistance)
-			aiCar->position.x = rand() % 5 * 10;
+		if (state->roadWidth.lastUpdate != fullscreenDistance)
+			aiCar->position.x = rand() % 5 * 20;
 	}
 
 	if (state->roadWidth.lastUpdate != fullscreenDistance && firstFreeIndex < AI_CARS_COUNT && rand() % 3 == 0) {
