@@ -114,3 +114,14 @@ void renderScoreboard(Application* app, GameState* state, char* buffer) {
 	sprintf_s(buffer, 128, "Press ENTER to start new game");
 	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 102 + app->scoreboard.count * 12, buffer, app->surfaces[CHARSET_s]);
 }
+
+void renderConfirmation(Application* app, char* buffer, GameStatus status) {
+	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2 - 20, 300, 40, app->colors[RED], app->colors[BLUE]);
+
+	int isError = status == SAVE_ERROR || status == LOAD_ERROR;
+	if(isError) sprintf_s(buffer, 128, "Game wasn't %s correctly.", status == SAVE_ERROR ? "saved" : "loaded");
+	else sprintf_s(buffer, 128, "Game has been successfully %s.", status == SAVE_SUCCESS ? "saved" : "loaded");
+	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), SCREEN_HEIGHT / 2 - 12, buffer, app->surfaces[CHARSET_s]);
+	sprintf_s(buffer, 128, isError ? "Press ENTER to close game" : "Press ENTER to continue");
+	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), SCREEN_HEIGHT / 2 + 4, buffer, app->surfaces[CHARSET_s]);
+}

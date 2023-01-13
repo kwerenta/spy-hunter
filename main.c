@@ -45,6 +45,10 @@ void gameLoop(Application* app, GameState* state, SDL_Event* event, int* selecti
 	case PAUSED: renderPause(app, buffer); break;
 	case SAVE_SELECTION: renderGameSaveSelection(app, buffer, *selection); break;
 	case SCOREBOARD: renderScoreboard(app, state, buffer); break;
+	case SAVE_ERROR: renderConfirmation(app, buffer, SAVE_ERROR);  break;
+	case LOAD_ERROR: renderConfirmation(app, buffer, LOAD_ERROR); break;
+	case SAVE_SUCCESS: renderConfirmation(app, buffer, SAVE_SUCCESS); break;
+	case LOAD_SUCCESS: renderConfirmation(app, buffer, LOAD_SUCCESS); break;
 	default: break;
 	}
 
@@ -59,6 +63,8 @@ void gameLoop(Application* app, GameState* state, SDL_Event* event, int* selecti
 		case SAVE_SELECTION: handleSaveSelection(state, event, &app->saves, selection); break;
 		case GAMEOVER: handleGameOver(state, event, &app->scoreboard, selection); break;
 		case SCOREBOARD: handleScoreboard(state, event, &app->scoreboard); break;
+		case SAVE_ERROR: case LOAD_ERROR: handleConfirmation(state, event, 1); break;
+		case SAVE_SUCCESS: case LOAD_SUCCESS: handleConfirmation(state, event, 0); break;
 		default: break;
 		}
 	};

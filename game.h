@@ -39,6 +39,10 @@ typedef enum GameStatus {
 	PLAYING,
 	PAUSED,
 	SAVE_SELECTION,
+	SAVE_ERROR,
+	SAVE_SUCCESS,
+	LOAD_ERROR,
+	LOAD_SUCCESS,
 	SCOREBOARD,
 	GAMEOVER,
 	QUIT
@@ -102,5 +106,6 @@ void handleGameplay(GameState* state, SDL_Event* event);
 void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* selection);
 void handleGameOver(GameState* state, SDL_Event* event, Scoreboard* scoreboard, int* selection);
 void handleScoreboard(GameState* state, SDL_Event* event, Scoreboard* scoreboard);
+void handleConfirmation(GameState* state, SDL_Event* event, int isError);
 int loadGame(GameState* state, SaveName save);
 int saveGame(GameState* state, Saves* saves);

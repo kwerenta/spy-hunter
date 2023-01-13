@@ -151,7 +151,7 @@ void handleControls(GameState* state, SDL_Event* event, Saves* saves) {
 		switch (event->key.keysym.sym) {
 		case SDLK_ESCAPE: state->status = QUIT; break;
 		case SDLK_n: initializeGameState(state); break;
-		case SDLK_s: state->status = saveGame(state, saves) == 1 ? PAUSED : QUIT; break;
+		case SDLK_s: state->status = saveGame(state, saves) == 1 ? SAVE_SUCCESS : SAVE_ERROR; break;
 		case SDLK_l: createSaveList(saves); state->status = SAVE_SELECTION; break;
 		default: break;
 		}
@@ -194,7 +194,7 @@ void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* 
 	case SDLK_DOWN: (*selection)++; break;
 	case SDLK_RETURN:
 		if (*selection == saves->count) state->status = PLAYING;
-		else state->status = loadGame(state, saves->list[*selection]) == 1 ? PAUSED : QUIT;
+		else state->status = loadGame(state, saves->list[*selection]) == 1 ? LOAD_SUCCESS : LOAD_ERROR;
 		*selection = 0;
 		break;
 	default: break;
@@ -234,6 +234,12 @@ void handleScoreboard(GameState* state, SDL_Event* event, Scoreboard* scoreboard
 	case SDLK_RETURN: initializeGameState(state); break;
 	default: break;
 	}
+}
+
+void handleConfirmation(GameState* state, SDL_Event* event, int isError) {
+	if (event->type != SDL_KEYDOWN) return;
+	if (event->key.keysym.sym == SDLK_RETURN)
+		state->status = isError ? QUIT : PLAYING;
 }
 
 void getGameSavePath(char buffer[DATETIME_LENGTH + 12], SaveName save) {

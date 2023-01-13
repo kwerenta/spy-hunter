@@ -16,3 +16,4 @@ void renderAI(Application* app, GameState* state);
 void renderGameSaveSelection(Application* app, char* buffer, int selection);
 void renderGameOver(Application* app, GameState* state, char* buffer, int selection);
 void renderScoreboard(Application* app, GameState* state, char* buffer);
+void renderConfirmation(Application* app, char* buffer, GameStatus status);
