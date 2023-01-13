@@ -146,22 +146,22 @@ void handleOutOfRoad(GameState* state) {
 	}
 }
 
-void handleControls(GameState* state, SDL_Event* event, Saves* saves) {
+void handleControls(GameState* state, SDL_Event* event) {
 	if (event->type == SDL_KEYDOWN) {
 		switch (event->key.keysym.sym) {
 		case SDLK_ESCAPE: state->status = QUIT; break;
 		case SDLK_n: initializeGameState(state); break;
-		case SDLK_s: state->status = saveGame(state, saves) == 1 ? SAVE_SUCCESS : SAVE_ERROR; break;
-		case SDLK_l: createSaveList(saves); state->status = SAVE_SELECTION; break;
 		default: break;
 		}
 	}
 };
 
-void handleGameplay(GameState* state, SDL_Event* event) {
+void handleGameplay(GameState* state, SDL_Event* event, Saves* saves) {
 	switch (event->type) {
 	case SDL_KEYDOWN:
 		switch (event->key.keysym.sym) {
+		case SDLK_s: state->status = saveGame(state, saves) == 1 ? SAVE_SUCCESS : SAVE_ERROR; break;
+		case SDLK_l: createSaveList(saves); state->status = SAVE_SELECTION; break;
 		case SDLK_p: state->status = state->status == PAUSED ? PLAYING : PAUSED; break;
 		case SDLK_f: state->status = GAMEOVER; break;
 		case SDLK_UP: state->direction.vertical = UP; break;
