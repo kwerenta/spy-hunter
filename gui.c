@@ -39,6 +39,9 @@ void renderBackground(Application* app, int backgroundOffset) {
 }
 
 void renderRoad(Application* app, GameState* state) {
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.current / 2 - 2, state->backgroundOffset - 2, state->roadWidth.current + 4, SCREEN_HEIGHT - state->backgroundOffset + 2, app->colors[WHITE]);
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.next / 2 - 2, 0, state->roadWidth.next + 4, state->backgroundOffset + 2, app->colors[WHITE]);
+
 	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.current / 2, state->backgroundOffset, state->roadWidth.current, SCREEN_HEIGHT - state->backgroundOffset, app->colors[ROAD]);
 	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.next / 2, 0, state->roadWidth.next, state->backgroundOffset, app->colors[ROAD]);
 

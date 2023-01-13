@@ -64,6 +64,7 @@ void initializeColors(Application* app) {
 	app->colors[ROAD] = SDL_MapRGB(app->screen->format, 0x40, 0x49, 0x73);
 	app->colors[OUTLINE] = SDL_MapRGB(app->screen->format, 0xE9, 0x46, 0x39);
 	app->colors[MENU] = SDL_MapRGB(app->screen->format, 0x2B, 0x2B, 0x45);
+	app->colors[WHITE] = SDL_MapRGB(app->screen->format, 0xF2, 0xF2, 0xF6);
 }
 
 void freeAllSurfaces(SDL_Surface* surfaces[SURFACES_COUNT]) {
