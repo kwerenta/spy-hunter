@@ -10,6 +10,7 @@
 #define SCREEN_HEIGHT	480
 
 #define SURFACES_COUNT 5
+#define COLORS_COUNT 3
 
 #define CAR_Y_POSITION SCREEN_HEIGHT * 3 / 4
 
@@ -22,6 +23,12 @@ typedef enum Surfaces {
 	NON_ENEMY_CAR_s,
 	GRASS_s
 } Surfaces;
+
+typedef enum Colors {
+	BLACK,
+	RED,
+	BLUE
+} Colors;
 
 typedef char SaveName[DATETIME_LENGTH];
 
@@ -46,14 +53,16 @@ typedef struct Application {
 	SDL_Surface* screen;
 	SDL_Texture* screenTexture;
 	SDL_Surface* surfaces[SURFACES_COUNT];
+	Uint32 colors[COLORS_COUNT];
 	double deltaTime;
 	Saves saves;
 	Scoreboard scoreboard;
 } Application;
 
 int initializeApplication(Application* app);
-void closeApplication(Application* app);
 int initializeSurfaces(Application* app);
+void initializeColors(Application* app);
+void closeApplication(Application* app);
 void updateScreen(Application* app);
 void createSaveList(Saves* saves);
 void createScoreboard(Scoreboard* scoreboard);

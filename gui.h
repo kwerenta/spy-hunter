@@ -7,12 +7,12 @@
 #include "game.h"
 #include "draw.h"
 
-void renderLegend(Application* app, GameState* state, char* buffer, int bgColor, int borderColor);
-void renderFunctionalities(Application* app, char* buffer, int bgColor, int borderColor);
+void renderLegend(Application* app, GameState* state, char* buffer);
+void renderFunctionalities(Application* app, char* buffer);
 void renderPause(Application* app, char* buffer);
 void renderBackground(Application* app, int backgroundOffset);
-void renderRoad(Application* app, GameState* state, int backgroundOffset, int color);
+void renderRoad(Application* app, GameState* state);
 void renderAI(Application* app, GameState* state);
-void renderGameSaveSelection(Application* app, char* buffer, int bgColor, int borderColor, int selectionColor, int selection);
-void renderGameOver(Application* app, GameState* state, char* buffer, int bgColor, int borderColor, int selectionColor, int selection);
-void renderScoreboard(Application* app, GameState* state, char* buffer, int bgColor, int borderColor);
+void renderGameSaveSelection(Application* app, char* buffer, int selection);
+void renderGameOver(Application* app, GameState* state, char* buffer, int selection);
+void renderScoreboard(Application* app, GameState* state, char* buffer);

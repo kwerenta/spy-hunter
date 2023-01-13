@@ -26,6 +26,10 @@ int initializeApplication(Application* app) {
 	app->saves = (Saves){ .count = 0, .list = NULL };
 	app->scoreboard = (Scoreboard){ .count = 0, .list = NULL };
 
+	initializeColors(app);
+	if (initializeSurfaces(app) == 0)
+		return 0;
+
 	return 1;
 }
 
@@ -53,6 +57,12 @@ int initializeSurfaces(Application* app) {
 	SDL_SetColorKey(app->surfaces[CHARSET_s], 1, 0x000000);
 
 	return 1;
+}
+
+void initializeColors(Application* app) {
+	app->colors[BLACK] = SDL_MapRGB(app->screen->format, 0x00, 0x00, 0x00);
+	app->colors[RED] = SDL_MapRGB(app->screen->format, 0xFF, 0x00, 0x00);
+	app->colors[BLUE] = SDL_MapRGB(app->screen->format, 0x11, 0x11, 0xCC);
 }
 
 void freeAllSurfaces(SDL_Surface* surfaces[SURFACES_COUNT]) {

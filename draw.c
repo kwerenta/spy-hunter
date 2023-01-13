@@ -28,8 +28,13 @@ void DrawLine(SDL_Surface* screen, int x, int y, int l, int dx, int dy, Uint32 c
 };
 
 
+void DrawRectangle(SDL_Surface* screen, int x, int y, int w, int h, Uint32 color) {
+	SDL_Rect rect = { .x = x, .y = y, .w = w, .h = h };
+	SDL_FillRect(screen, &rect, color);
+}
+
 // draw a rectangle of size l by k
-void DrawRectangle(SDL_Surface* screen, int x, int y, int l, int k,
+void DrawBorderedRectangle(SDL_Surface* screen, int x, int y, int l, int k,
 	Uint32 outlineColor, Uint32 fillColor) {
 	int i;
 	DrawLine(screen, x, y, k, 0, 1, outlineColor);

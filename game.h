@@ -61,6 +61,8 @@ typedef struct AICar {
 typedef struct GameState {
 	int score;
 	int haltScore;
+	int backgroundOffset;
+	int screenDistance;
 	double immortalityTime;
 	double position;
 	double time;
@@ -76,11 +78,13 @@ typedef struct GameState {
 void initializeGameState(GameState* state);
 void updateGameState(Application* app, GameState* state);
 void updateRoadWidth(GameState* state);
-void updateAI(Application* app, GameState* state, int backgroundOffset);
+void updateSpareCars(SpareCars* spareCars, int score);
+void updateImmortalityTime(double* immortalityTime, double deltaTime);
+void updateAI(Application* app, GameState* state);
 void handleCollisions(Application* app, GameState* state);
-void handleOutOfRoad(GameState* state, int backgroundOffset);
+void handleOutOfRoad(GameState* state);
 void handleControls(GameState* state, SDL_Event* event, Saves* saves);
-void handleMovement(GameState* state, SDL_Event* event);
+void handleGameplay(GameState* state, SDL_Event* event);
 void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* selection);
 void handleGameOver(GameState* state, SDL_Event* event, Scoreboard* scoreboard, int* selection);
 void handleScoreboard(GameState* state, SDL_Event* event, Scoreboard* scoreboard);
