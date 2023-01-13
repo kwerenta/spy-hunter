@@ -7,6 +7,9 @@
 
 #define SCORE_MULTIPLIER 3.5
 #define SPEED_MULTIPLIER 400
+#define ACCELERATION_MULTIPLIER 2
+#define MAX_SPEED 2.0
+
 #define DEFAULT_ROAD_WIDTH 200
 #define AI_CARS_COUNT 4
 
@@ -17,9 +20,20 @@
 
 typedef enum {
 	LEFT = -1,
-	NONE = 0,
+	STRAIGHT = 0,
 	RIGHT = 1
 } H_Direction;
+
+typedef enum V_Direction {
+	DOWN = -1,
+	NONE = 0,
+	UP = 1
+} V_Direction;
+
+typedef struct Direction {
+	H_Direction horizontal;
+	V_Direction vertical;
+} Direction;
 
 typedef enum GameStatus {
 	PLAYING,
@@ -71,7 +85,7 @@ typedef struct GameState {
 	SpareCars spareCars;
 	AICar aiCars[AI_CARS_COUNT];
 	RoadWidth roadWidth;
-	H_Direction direction;
+	Direction direction;
 	GameStatus status;
 } GameState;
 

@@ -10,22 +10,25 @@ void initializeGameState(GameState* state) {
 	state->time = 0;
 	state->position = 0;
 	state->distance = 0;
-	state->speed = 1.0;
+	state->speed = 0;
 
 	for (int i = 0; i < AI_CARS_COUNT; i++)
 		state->aiCars[i].hp = 0;
 
 	state->spareCars = (SpareCars){ .count = 0, .lastMilestone = 0 };
 	state->roadWidth = (RoadWidth){ .current = DEFAULT_ROAD_WIDTH, .next = DEFAULT_ROAD_WIDTH, .lastUpdate = 0 };
-	state->direction = NONE;
+	state->direction = (Direction){ .horizontal = STRAIGHT, .vertical = NONE };
 	state->status = PLAYING;
 }
 
 void updateGameState(Application* app, GameState* state) {
 	state->time += app->deltaTime;
 	state->distance += state->speed * SPEED_MULTIPLIER * app->deltaTime;
-	state->position += state->direction * SPEED_MULTIPLIER * app->deltaTime;
+	state->position += state->direction.horizontal * state->speed * SPEED_MULTIPLIER / 2 * app->deltaTime;
 	state->score = (int)(state->distance / SCREEN_HEIGHT * SCORE_MULTIPLIER) * 50;
+
+	state->speed += state->direction.vertical * ACCELERATION_MULTIPLIER * app->deltaTime;
+	state->speed = state->speed > MAX_SPEED ? MAX_SPEED : state->speed < 0 ? 0 : state->speed;
 
 	state->backgroundOffset = (int)state->distance % SCREEN_HEIGHT;
 	state->screenDistance = (int)(state->distance / SCREEN_HEIGHT);
@@ -119,10 +122,10 @@ void handleCollisions(Application* app, GameState* state, AICar* aiCar) {
 		&& aiCar->position.y <= CAR_Y_POSITION + surface->h
 		&& aiCar->position.y >= CAR_Y_POSITION - surface->h)
 	{
-		state->position -= 20 * state->direction;
-		aiCar->position.x += 30 * state->direction;
+		state->position -= 20 * state->direction.horizontal;
+		aiCar->position.x += 30 * state->direction.horizontal;
 
-		state->direction = NONE;
+		state->direction.horizontal = STRAIGHT;
 		state->speed = state->speed * 0.75;
 	}
 }
@@ -131,6 +134,7 @@ void handleOutOfRoad(GameState* state) {
 	if (abs(state->position) > (state->backgroundOffset >= CAR_Y_POSITION ? state->roadWidth.next : state->roadWidth.current) / 2)
 	{
 		state->position = 0;
+		state->speed = 0;
 		if (state->immortalityTime > 0) return;
 
 		if (state->spareCars.count == 0) {
@@ -160,19 +164,19 @@ void handleGameplay(GameState* state, SDL_Event* event) {
 		switch (event->key.keysym.sym) {
 		case SDLK_p: state->status = state->status == PAUSED ? PLAYING : PAUSED; break;
 		case SDLK_f: state->status = GAMEOVER; break;
-		case SDLK_UP: state->speed = 1.75; break;
-		case SDLK_DOWN: state->speed = 0.3; break;
-		case SDLK_RIGHT: state->direction = RIGHT; break;
-		case SDLK_LEFT: state->direction = LEFT; break;
+		case SDLK_UP: state->direction.vertical = UP; break;
+		case SDLK_DOWN: state->direction.vertical = DOWN; break;
+		case SDLK_RIGHT: state->direction.horizontal = RIGHT; break;
+		case SDLK_LEFT: state->direction.horizontal = LEFT; break;
 		default: break;
 		}
 		break;
 	case SDL_KEYUP:
 		if (event->key.keysym.sym == SDLK_UP || event->key.keysym.sym == SDLK_DOWN)
-			state->speed = 1.0;
-		else if ((event->key.keysym.sym == SDLK_RIGHT && state->direction == RIGHT) ||
-			(event->key.keysym.sym == SDLK_LEFT && state->direction == LEFT))
-			state->direction = NONE;
+			state->direction.vertical = NONE;
+		if ((event->key.keysym.sym == SDLK_RIGHT && state->direction.horizontal == RIGHT) ||
+			(event->key.keysym.sym == SDLK_LEFT && state->direction.horizontal == LEFT))
+			state->direction.horizontal = STRAIGHT;
 		break;
 	};
 };
