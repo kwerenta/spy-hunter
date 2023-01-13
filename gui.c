@@ -1,7 +1,7 @@
 #include "gui.h"
 
 void renderLegend(Application* app, GameState* state, char* buffer) {
-	DrawBorderedRectangle(app->screen, 4, 4, SCREEN_WIDTH - 8, 36, app->colors[RED], app->colors[BLUE]);
+	DrawBorderedRectangle(app->screen, 4, 4, SCREEN_WIDTH - 8, 36, app->colors[OUTLINE], app->colors[MENU]);
 	sprintf_s(buffer, 128, "TIME %03.0lf", state->time);
 	DrawString(app->screen, 8, 10, buffer, app->surfaces[CHARSET_s]);
 
@@ -19,7 +19,7 @@ void renderLegend(Application* app, GameState* state, char* buffer) {
 }
 
 void renderFunctionalities(Application* app, char* buffer) {
-	DrawBorderedRectangle(app->screen, SCREEN_WIDTH - 84, SCREEN_HEIGHT - 16, 80, 12, app->colors[RED], app->colors[BLUE]);
+	DrawBorderedRectangle(app->screen, SCREEN_WIDTH - 84, SCREEN_HEIGHT - 16, 80, 12, app->colors[OUTLINE], app->colors[MENU]);
 
 	sprintf_s(buffer, 128, "a-i, m, o");
 	DrawString(app->screen, app->screen->w - 8 - strlen(buffer) * 8, SCREEN_HEIGHT - 14, buffer, app->surfaces[CHARSET_s]);
@@ -34,13 +34,16 @@ void renderPause(Application* app, char* buffer) {
 }
 
 void renderBackground(Application* app, int backgroundOffset) {
-	DrawSurface(app->screen, app->surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset - SCREEN_HEIGHT / 2);
-	DrawSurface(app->screen, app->surfaces[GRASS_s], SCREEN_WIDTH / 2, backgroundOffset + SCREEN_HEIGHT / 2);
+	DrawSurface(app->screen, app->surfaces[BACKGROUND_s], SCREEN_WIDTH / 2, backgroundOffset - SCREEN_HEIGHT / 2);
+	DrawSurface(app->screen, app->surfaces[BACKGROUND_s], SCREEN_WIDTH / 2, backgroundOffset + SCREEN_HEIGHT / 2);
 }
 
 void renderRoad(Application* app, GameState* state) {
-	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.current / 2, state->backgroundOffset, state->roadWidth.current, SCREEN_HEIGHT - state->backgroundOffset, app->colors[BLACK]);
-	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.next / 2, 0, state->roadWidth.next, state->backgroundOffset, app->colors[BLACK]);
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.current / 2, state->backgroundOffset, state->roadWidth.current, SCREEN_HEIGHT - state->backgroundOffset, app->colors[ROAD]);
+	DrawRectangle(app->screen, SCREEN_WIDTH / 2 - state->roadWidth.next / 2, 0, state->roadWidth.next, state->backgroundOffset, app->colors[ROAD]);
+
+	DrawSurface(app->screen, app->surfaces[ROAD_LINES_s], SCREEN_WIDTH / 2, state->backgroundOffset - SCREEN_HEIGHT / 2);
+	DrawSurface(app->screen, app->surfaces[ROAD_LINES_s], SCREEN_WIDTH / 2, state->backgroundOffset + SCREEN_HEIGHT / 2);
 }
 
 void renderAI(Application* app, GameState* state) {
@@ -52,7 +55,7 @@ void renderAI(Application* app, GameState* state) {
 }
 
 void renderGameSaveSelection(Application* app, char* buffer, int selection) {
-	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, app->saves.count * 12 + 56, app->colors[RED], app->colors[BLUE]);
+	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, app->saves.count * 12 + 56, app->colors[OUTLINE], app->colors[MENU]);
 
 	sprintf_s(buffer, 128, "Select Game Save you want to Load");
 	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 52, buffer, app->surfaces[CHARSET_s]);
@@ -61,18 +64,18 @@ void renderGameSaveSelection(Application* app, char* buffer, int selection) {
 	{
 		sprintf_s(buffer, 128, "Save No. %d: %s", i + 1, app->saves.list[i]);
 		if (selection == i)
-			DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 146, 66 + i * 12, 292, 12, app->colors[RED], app->colors[BLACK]);
+			DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 146, 66 + i * 12, 292, 12, app->colors[OUTLINE], app->colors[ROAD]);
 		DrawString(app->screen, SCREEN_WIDTH / 2 - 142, 68 + i * 12, buffer, app->surfaces[CHARSET_s]);
 	}
 
 	sprintf_s(buffer, 128, "Cancel");
 	if (selection == app->saves.count)
-		DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 146, 66 + (app->saves.count + 1) * 12, 292, 12, app->colors[RED], app->colors[BLACK]);
+		DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 146, 66 + (app->saves.count + 1) * 12, 292, 12, app->colors[OUTLINE], app->colors[ROAD]);
 	DrawString(app->screen, SCREEN_WIDTH / 2 - 142, 68 + (app->saves.count + 1) * 12, buffer, app->surfaces[CHARSET_s]);
 }
 
 void renderGameOver(Application* app, GameState* state, char* buffer, int selection) {
-	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, 80, app->colors[RED], app->colors[BLUE]);
+	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, 80, app->colors[OUTLINE], app->colors[MENU]);
 
 	sprintf_s(buffer, 128, "GAME OVER");
 	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 52, buffer, app->surfaces[CHARSET_s]);
@@ -87,7 +90,7 @@ void renderGameOver(Application* app, GameState* state, char* buffer, int select
 	sprintf_s(buffer, 128, "Do you want to save your result?");
 	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 92, buffer, app->surfaces[CHARSET_s]);
 
-	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 + (selection == 0 ? -16 - 3 * 8 : 8), 102, (selection == 0 ? 3 * 8 + 8 : 2 * 8 + 8), 12, app->colors[RED], app->colors[BLACK]);
+	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 + (selection == 0 ? -16 - 3 * 8 : 8), 102, (selection == 0 ? 3 * 8 + 8 : 2 * 8 + 8), 12, app->colors[OUTLINE], app->colors[ROAD]);
 	sprintf_s(buffer, 128, "Yes");
 	DrawString(app->screen, SCREEN_WIDTH / 2 - 12 - strlen(buffer) * 8, 104, buffer, app->surfaces[CHARSET_s]);
 	sprintf_s(buffer, 128, "No");
@@ -95,7 +98,7 @@ void renderGameOver(Application* app, GameState* state, char* buffer, int select
 }
 
 void renderScoreboard(Application* app, GameState* state, char* buffer) {
-	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, app->scoreboard.count * 12 + 80, app->colors[RED], app->colors[BLUE]);
+	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 150, 44, 300, app->scoreboard.count * 12 + 80, app->colors[OUTLINE], app->colors[MENU]);
 
 	sprintf_s(buffer, 128, "SCOREBOARD");
 	DrawString(app->screen, SCREEN_WIDTH / 2 - STRING_CENTER(buffer), 52, buffer, app->surfaces[CHARSET_s]);
@@ -116,7 +119,7 @@ void renderScoreboard(Application* app, GameState* state, char* buffer) {
 }
 
 void renderConfirmation(Application* app, char* buffer, GameStatus status) {
-	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2 - 20, 300, 40, app->colors[RED], app->colors[BLUE]);
+	DrawBorderedRectangle(app->screen, SCREEN_WIDTH / 2 - 150, SCREEN_HEIGHT / 2 - 20, 300, 40, app->colors[OUTLINE], app->colors[MENU]);
 
 	int isError = status == SAVE_ERROR || status == LOAD_ERROR;
 	if(isError) sprintf_s(buffer, 128, "Game wasn't %s correctly.", status == SAVE_ERROR ? "saved" : "loaded");

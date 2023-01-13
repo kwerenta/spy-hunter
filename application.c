@@ -45,7 +45,8 @@ int initializeSurfaces(Application* app) {
 	loadBMP(app->surfaces, CAR_s, "./car.bmp");
 	loadBMP(app->surfaces, ENEMY_CAR_s, "./enemy_car.bmp");
 	loadBMP(app->surfaces, NON_ENEMY_CAR_s, "./non_enemy_car.bmp");
-	loadBMP(app->surfaces, GRASS_s, "./bg.bmp");
+	loadBMP(app->surfaces, BACKGROUND_s, "./bg.bmp");
+	loadBMP(app->surfaces, ROAD_LINES_s, "./road_lines.bmp");
 
 	// Check if all surfaces loaded correctly
 	for (int i = 0; i < SURFACES_COUNT; i++)
@@ -60,9 +61,9 @@ int initializeSurfaces(Application* app) {
 }
 
 void initializeColors(Application* app) {
-	app->colors[BLACK] = SDL_MapRGB(app->screen->format, 0x00, 0x00, 0x00);
-	app->colors[RED] = SDL_MapRGB(app->screen->format, 0xFF, 0x00, 0x00);
-	app->colors[BLUE] = SDL_MapRGB(app->screen->format, 0x11, 0x11, 0xCC);
+	app->colors[ROAD] = SDL_MapRGB(app->screen->format, 0x40, 0x49, 0x73);
+	app->colors[OUTLINE] = SDL_MapRGB(app->screen->format, 0xE9, 0x46, 0x39);
+	app->colors[MENU] = SDL_MapRGB(app->screen->format, 0x2B, 0x2B, 0x45);
 }
 
 void freeAllSurfaces(SDL_Surface* surfaces[SURFACES_COUNT]) {

@@ -9,7 +9,7 @@
 #define SCREEN_WIDTH	640
 #define SCREEN_HEIGHT	480
 
-#define SURFACES_COUNT 5
+#define SURFACES_COUNT 6
 #define COLORS_COUNT 3
 
 #define CAR_Y_POSITION SCREEN_HEIGHT * 3 / 4
@@ -21,13 +21,14 @@ typedef enum Surfaces {
 	CAR_s,
 	ENEMY_CAR_s,
 	NON_ENEMY_CAR_s,
-	GRASS_s
+	BACKGROUND_s,
+	ROAD_LINES_s
 } Surfaces;
 
 typedef enum Colors {
-	BLACK,
-	RED,
-	BLUE
+	ROAD,
+	OUTLINE,
+	MENU
 } Colors;
 
 typedef char SaveName[DATETIME_LENGTH];
