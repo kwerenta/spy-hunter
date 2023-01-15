@@ -171,13 +171,16 @@ void handleOutOfRoad(GameState* state, SDL_Surface* surface) {
 	state->spareCars.count--;
 }
 
-void handleControls(GameState* state, SDL_Event* event) {
-	if (event->type == SDL_KEYDOWN) {
-		switch (event->key.keysym.sym) {
-		case SDLK_ESCAPE: state->status = QUIT; break;
-		case SDLK_n: initializeGameState(state); break;
-		default: break;
-		}
+int handleControls(GameState* state, SDL_Event* event) {
+	if (event->type != SDL_KEYDOWN) return 0;
+	switch (event->key.keysym.sym) {
+	case SDLK_ESCAPE: state->status = QUIT; return 1;
+	case SDLK_n: initializeGameState(state); return 1;
+	case SDLK_p: if (state->status == PAUSED) {
+		state->status = PLAYING; 
+		return 1;
+	}
+	default: return 0;
 	}
 };
 
@@ -187,7 +190,7 @@ void handleGameplay(GameState* state, SDL_Event* event, Saves* saves) {
 		switch (event->key.keysym.sym) {
 		case SDLK_s: state->status = saveGame(state, saves) == 1 ? SAVE_SUCCESS : SAVE_ERROR; break;
 		case SDLK_l: createSaveList(saves); state->status = SAVE_SELECTION; break;
-		case SDLK_p: state->status = state->status == PAUSED ? PLAYING : PAUSED; break;
+		case SDLK_p: state->status = PAUSED; break;
 		case SDLK_f: state->status = GAMEOVER; break;
 		case SDLK_UP: state->direction.vertical = UP; break;
 		case SDLK_DOWN: state->direction.vertical = DOWN; break;

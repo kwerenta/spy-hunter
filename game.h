@@ -111,7 +111,7 @@ void updateTimer(double* time, double deltaTime);
 void updateAI(Application* app, GameState* state);
 void handleCollisions(Application* app, GameState* state);
 void handleOutOfRoad(GameState* state, SDL_Surface *surface);
-void handleControls(GameState* state, SDL_Event* event);
+int handleControls(GameState* state, SDL_Event* event);
 void handleGameplay(GameState* state, SDL_Event* event, Saves* saves);
 void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* selection);
 void handleGameOver(GameState* state, SDL_Event* event, Scoreboard* scoreboard, int* selection);

@@ -57,7 +57,7 @@ void gameLoop(Application* app, GameState* state, SDL_Event* event, int* selecti
 	while (SDL_PollEvent(event)) {
 		if (event->type == SDL_QUIT) state->status = QUIT;
 
-		handleControls(state, event);
+		if (handleControls(state, event)) continue;
 		switch (state->status) {
 		case PLAYING: handleGameplay(state, event, &app->saves); break;
 		case SAVE_SELECTION: handleSaveSelection(state, event, &app->saves, selection); break;
