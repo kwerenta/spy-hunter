@@ -13,6 +13,10 @@
 #define DEFAULT_ROAD_WIDTH 200
 #define AI_CARS_COUNT 4
 
+#define HALT_SCORE_TIME 3
+#define SCORE_PER_ENEMY 150
+#define ENEMY_HP 5
+#define NON_ENEMY_HP 3
 #define IMMORTALITY_TIME 99
 #define CAR_MILESTONE_1 7000
 #define CAR_MILESTONE_2 10000
@@ -59,6 +63,11 @@ typedef struct SpareCars {
 	double lastMilestone;
 } SpareCars;
 
+typedef struct HaltedScore {
+	double time;
+	double distance;
+} HaltedScore;
+
 typedef struct Position {
 	double x;
 	double y;
@@ -78,7 +87,6 @@ typedef struct AICar {
 
 typedef struct GameState {
 	int score;
-	int haltScore;
 	int backgroundOffset;
 	int screenDistance;
 	double immortalityTime;
@@ -86,6 +94,7 @@ typedef struct GameState {
 	double time;
 	double distance;
 	double speed;
+	HaltedScore haltedScore;
 	SpareCars spareCars;
 	AICar aiCars[AI_CARS_COUNT];
 	RoadWidth roadWidth;
@@ -97,10 +106,10 @@ void initializeGameState(GameState* state);
 void updateGameState(Application* app, GameState* state);
 void updateRoadWidth(GameState* state);
 void updateSpareCars(SpareCars* spareCars, int score);
-void updateImmortalityTime(double* immortalityTime, double deltaTime);
+void updateTimer(double* time, double deltaTime);
 void updateAI(Application* app, GameState* state);
 void handleCollisions(Application* app, GameState* state);
-void handleOutOfRoad(GameState* state);
+void handleOutOfRoad(GameState* state, SDL_Surface *surface);
 void handleControls(GameState* state, SDL_Event* event);
 void handleGameplay(GameState* state, SDL_Event* event, Saves* saves);
 void handleSaveSelection(GameState* state, SDL_Event* event, Saves* saves, int* selection);

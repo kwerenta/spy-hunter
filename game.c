@@ -2,7 +2,6 @@
 
 void initializeGameState(GameState* state) {
 	state->score = 0;
-	state->haltScore = 0;
 	state->backgroundOffset = 0;
 	state->screenDistance = 0;
 
@@ -15,6 +14,7 @@ void initializeGameState(GameState* state) {
 	for (int i = 0; i < AI_CARS_COUNT; i++)
 		state->aiCars[i].hp = 0;
 
+	state->haltedScore = (HaltedScore){ .distance = 0, .time = 0 };
 	state->spareCars = (SpareCars){ .count = 0, .lastMilestone = 0 };
 	state->roadWidth = (RoadWidth){ .current = DEFAULT_ROAD_WIDTH, .next = DEFAULT_ROAD_WIDTH, .lastUpdate = 0 };
 	state->direction = (Direction){ .horizontal = STRAIGHT, .vertical = NONE };
@@ -23,9 +23,15 @@ void initializeGameState(GameState* state) {
 
 void updateGameState(Application* app, GameState* state) {
 	state->time += app->deltaTime;
-	state->distance += state->speed * SPEED_MULTIPLIER * app->deltaTime;
 	state->position += state->direction.horizontal * state->speed * SPEED_MULTIPLIER / 2 * app->deltaTime;
-	state->score = (int)(state->distance / SCREEN_HEIGHT * SCORE_MULTIPLIER) * 50;
+
+	double deltaDistance = state->speed * SPEED_MULTIPLIER * app->deltaTime;
+	state->distance += deltaDistance;
+	if (state->haltedScore.time > 0 ||
+		abs(state->position) + app->surfaces[CAR_s]->w / 2 > (state->backgroundOffset >= CAR_Y_POSITION ? state->roadWidth.next : state->roadWidth.current) / 2)
+		state->haltedScore.distance += deltaDistance;
+
+	state->score = (int)((state->distance - state->haltedScore.distance) / SCREEN_HEIGHT * SCORE_MULTIPLIER) * 50;
 
 	state->speed += state->direction.vertical * ACCELERATION_MULTIPLIER * app->deltaTime;
 	state->speed = state->speed > MAX_SPEED ? MAX_SPEED : state->speed < 0 ? 0 : state->speed;
@@ -34,7 +40,8 @@ void updateGameState(Application* app, GameState* state) {
 	state->screenDistance = (int)(state->distance / SCREEN_HEIGHT);
 
 	updateSpareCars(&state->spareCars, state->score);
-	updateImmortalityTime(&state->immortalityTime, app->deltaTime);
+	updateTimer(&state->immortalityTime, app->deltaTime);
+	updateTimer(&state->haltedScore.time, app->deltaTime);
 }
 
 void updateRoadWidth(GameState* state) {
@@ -62,17 +69,21 @@ void updateSpareCars(SpareCars* spareCars, int score) {
 	}
 }
 
-void updateImmortalityTime(double* immortalityTime, double deltaTime) {
-	if (*immortalityTime > 0) *immortalityTime -= deltaTime;
-	else *immortalityTime = 0;
+void updateTimer(double* time, double deltaTime) {
+	if (*time > 0) *time -= deltaTime;
+	else *time = 0;
+}
+
+int isOutOfRoad(GameState* state, SDL_Surface* surface, double x, double y) {
+	return abs(x) - surface->w / 2 > (state->backgroundOffset >= y ? state->roadWidth.next : state->roadWidth.current) / 2;
 }
 
 void createAICar(AICar* aiCar) {
 	aiCar->type = rand() % 2 ? ENEMY : NON_ENEMY;
-	aiCar->hp = aiCar->type == NON_ENEMY ? 3 : 5;
-	aiCar->speed = 1.0 + (rand() % 2 - 1) * rand() % 3 / 10.0;
-	aiCar->position.x = rand() % 5 * (rand() % 2 + 1) * 10;
-	aiCar->position.y = SCREEN_HEIGHT / 3 + rand() % 5 * 10;
+	aiCar->hp = aiCar->type == NON_ENEMY ? NON_ENEMY_HP : ENEMY_HP;
+	aiCar->speed = 1.0 + (rand() % 3 - 1) * rand() % 5 / 10.0;
+	aiCar->position.x = rand() % 5 * (rand() % 3 - 1) * 10;
+	aiCar->position.y = SCREEN_HEIGHT / 3 + rand() % 3 * 10;
 }
 
 void updateAI(Application* app, GameState* state) {
@@ -96,7 +107,11 @@ void updateAI(Application* app, GameState* state) {
 		}
 
 		// Check if out of road
-		if (abs(aiCar->position.x) > (state->backgroundOffset >= aiCar->position.y ? state->roadWidth.next : state->roadWidth.current) / 2) {
+		if (isOutOfRoad(state, app->surfaces[aiCar->type == NON_ENEMY ? NON_ENEMY_CAR_s : ENEMY_CAR_s], aiCar->position.x, aiCar->position.y)) {
+			if (aiCar->type == ENEMY && aiCar->hp < ENEMY_HP)
+				state->score += SCORE_PER_ENEMY;
+			else if (aiCar->type == NON_ENEMY && aiCar->hp < NON_ENEMY)
+				state->haltedScore.time = HALT_SCORE_TIME;
 			aiCar->hp = 0;
 			continue;
 		}
@@ -104,7 +119,7 @@ void updateAI(Application* app, GameState* state) {
 		if (i == firstFreeIndex) firstFreeIndex++;
 
 		if (state->roadWidth.lastUpdate != state->screenDistance)
-			aiCar->position.x = rand() % 5 * 20;
+			aiCar->position.x = (rand() % 3 - 1) * rand() % 5 * 20;
 	}
 
 	if (state->roadWidth.lastUpdate != state->screenDistance && firstFreeIndex < AI_CARS_COUNT && rand() % 3 == 0) {
@@ -125,25 +140,26 @@ void handleCollisions(Application* app, GameState* state, AICar* aiCar) {
 		state->position -= 20 * state->direction.horizontal;
 		aiCar->position.x += 30 * state->direction.horizontal;
 
+		aiCar->hp--;
+		if (aiCar->hp == 0) state->score += SCORE_PER_ENEMY;
+
 		state->direction.horizontal = STRAIGHT;
-		state->speed = state->speed * 0.75;
+		state->speed = state->speed * 0.90;
 	}
 }
 
-void handleOutOfRoad(GameState* state) {
-	if (abs(state->position) > (state->backgroundOffset >= CAR_Y_POSITION ? state->roadWidth.next : state->roadWidth.current) / 2)
-	{
-		state->position = 0;
-		state->speed = 0;
-		if (state->immortalityTime > 0) return;
+void handleOutOfRoad(GameState* state, SDL_Surface* surface) {
+	if (!isOutOfRoad(state, surface, state->position, CAR_Y_POSITION)) return;
+	state->position = 0;
+	state->speed = 0;
+	if (state->immortalityTime > 0) return;
 
-		if (state->spareCars.count == 0) {
-			state->status = GAMEOVER;
-			return;
-		}
-
-		state->spareCars.count--;
+	if (state->spareCars.count == 0) {
+		state->status = GAMEOVER;
+		return;
 	}
+
+	state->spareCars.count--;
 }
 
 void handleControls(GameState* state, SDL_Event* event) {

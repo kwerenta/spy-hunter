@@ -79,7 +79,7 @@ void updateGameFrame(Application* app, GameState* state, char* buffer) {
 
 	updateRoadWidth(state);
 	renderRoad(app, state);
-	handleOutOfRoad(state);
+	handleOutOfRoad(state, app->surfaces[CAR_s]);
 
 	DrawSurface(app->screen, app->surfaces[CAR_s], SCREEN_WIDTH / 2 + state->position, CAR_Y_POSITION);
 	renderAI(app, state);
