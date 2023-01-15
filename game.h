@@ -81,6 +81,7 @@ typedef enum AICar_Type {
 typedef struct AICar {
 	int hp;
 	double speed;
+	double targetX;
 	Position position;
 	AICar_Type type;
 } AICar;

@@ -82,8 +82,9 @@ void createAICar(AICar* aiCar) {
 	aiCar->type = rand() % 2 ? ENEMY : NON_ENEMY;
 	aiCar->hp = aiCar->type == NON_ENEMY ? NON_ENEMY_HP : ENEMY_HP;
 	aiCar->speed = 1.0 + (rand() % 3 - 1) * rand() % 5 / 10.0;
-	aiCar->position.x = rand() % 5 * (rand() % 3 - 1) * 10;
 	aiCar->position.y = SCREEN_HEIGHT / 3 + rand() % 3 * 10;
+	aiCar->position.x = rand() % 5 * (rand() % 3 - 1) * 10;
+	aiCar->targetX = aiCar->position.x;
 }
 
 void updateAI(Application* app, GameState* state) {
@@ -94,6 +95,13 @@ void updateAI(Application* app, GameState* state) {
 		AICar* aiCar = &state->aiCars[i];
 		if (aiCar->hp == 0) continue;
 		aiCar->position.y -= app->deltaTime * (aiCar->speed - state->speed) * SPEED_MULTIPLIER;
+
+		H_Direction direction = aiCar->targetX > aiCar->position.x ? RIGHT :
+			aiCar->targetX < aiCar->position.x ? LEFT : STRAIGHT;
+		aiCar->position.x += direction * aiCar->speed * SPEED_MULTIPLIER / 2 * app->deltaTime;
+		if (aiCar->position.x < aiCar->targetX && direction == LEFT ||
+			aiCar->position.x > aiCar->targetX && direction == RIGHT)
+			aiCar->position.x = aiCar->targetX;
 
 		handleCollisions(app, state, aiCar);
 
@@ -118,8 +126,8 @@ void updateAI(Application* app, GameState* state) {
 
 		if (i == firstFreeIndex) firstFreeIndex++;
 
-		if (state->roadWidth.lastUpdate != state->screenDistance)
-			aiCar->position.x = (rand() % 3 - 1) * rand() % 5 * 20;
+		if (state->roadWidth.lastUpdate != state->screenDistance && rand() % 3 == 0)
+			aiCar->targetX = (rand() % 3 - 1) * rand() % 5 * 20;
 	}
 
 	if (state->roadWidth.lastUpdate != state->screenDistance && firstFreeIndex < AI_CARS_COUNT && rand() % 3 == 0) {
@@ -139,6 +147,7 @@ void handleCollisions(Application* app, GameState* state, AICar* aiCar) {
 	{
 		state->position -= 20 * state->direction.horizontal;
 		aiCar->position.x += 30 * state->direction.horizontal;
+		aiCar->targetX = aiCar->position.x;
 
 		aiCar->hp--;
 		if (aiCar->hp == 0) state->score += SCORE_PER_ENEMY;
