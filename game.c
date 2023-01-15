@@ -16,7 +16,7 @@ void initializeGameState(GameState* state) {
 		state->aiCars[i].hp = 0;
 
 	state->haltedScore = (HaltedScore){ .distance = 0, .time = 0 };
-	state->spareCars = (SpareCars){ .count = 0, .lastMilestone = 0 };
+	state->spareCars = (SpareCars){ .count = 1, .lastMilestone = 0 };
 	state->roadWidth = (RoadWidth){ .current = DEFAULT_ROAD_WIDTH, .next = DEFAULT_ROAD_WIDTH, .lastUpdate = 0 };
 	state->direction = (Direction){ .horizontal = STRAIGHT, .vertical = NONE };
 	state->status = PLAYING;
@@ -28,6 +28,8 @@ void updateGameState(Application* app, GameState* state) {
 
 	double deltaDistance = state->speed * SPEED_MULTIPLIER * app->deltaTime;
 	state->distance += deltaDistance;
+
+	// Check if the car is on the roadside
 	if (state->haltedScore.time > 0 ||
 		abs(state->position) + app->surfaces[CAR_s]->w / 2 > (state->backgroundOffset >= CAR_Y_POSITION ? state->roadWidth.next : state->roadWidth.current) / 2)
 		state->haltedScore.distance += deltaDistance;
@@ -168,10 +170,8 @@ void handleCollisions(Application* app, GameState* state, AICar* aiCar, H_Direct
 			state->speed *= 0.5;
 		}
 		else {
-			if (aiCar->position.y > CAR_Y_POSITION)
-				aiCar->speed *= 0.25;
-			else
-				state->speed *= 0.25;
+			if (aiCar->position.y > CAR_Y_POSITION) aiCar->speed *= 0.25;
+			else state->speed *= 0.25;
 		}
 
 		aiCar->targetX = aiCar->position.x;
@@ -183,13 +183,9 @@ void handleOutOfRoad(GameState* state, SDL_Surface* surface) {
 	state->position = 0;
 	state->speed = 0;
 	if (state->immortalityTime > 0) return;
-
-	if (state->spareCars.count == 0) {
-		state->status = GAMEOVER;
-		return;
-	}
-
 	state->spareCars.count--;
+
+	if (state->spareCars.count == 0) state->status = GAMEOVER;
 }
 
 int handleControls(GameState* state, SDL_Event* event) {
