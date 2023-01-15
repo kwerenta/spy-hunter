@@ -19,9 +19,9 @@ void renderLegend(Application* app, GameState* state, char* buffer) {
 }
 
 void renderFunctionalities(Application* app, char* buffer) {
-	DrawBorderedRectangle(app->screen, SCREEN_WIDTH - 84, SCREEN_HEIGHT - 16, 80, 12, app->colors[OUTLINE], app->colors[MENU]);
+	sprintf_s(buffer, 128, "a-j, l, m, o");
+	DrawBorderedRectangle(app->screen, SCREEN_WIDTH - 12 -strlen(buffer) * 8, SCREEN_HEIGHT - 16, strlen(buffer) * 8 + 8, 12, app->colors[OUTLINE], app->colors[MENU]);
 
-	sprintf_s(buffer, 128, "a-i, m, o");
 	DrawString(app->screen, app->screen->w - 8 - strlen(buffer) * 8, SCREEN_HEIGHT - 14, buffer, app->surfaces[CHARSET_s]);
 }
 
