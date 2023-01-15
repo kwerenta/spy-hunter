@@ -88,6 +88,7 @@ typedef struct AICar {
 
 typedef struct GameState {
 	int score;
+	int additionalScore;
 	int backgroundOffset;
 	int screenDistance;
 	double immortalityTime;

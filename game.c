@@ -2,6 +2,7 @@
 
 void initializeGameState(GameState* state) {
 	state->score = 0;
+	state->additionalScore = 0;
 	state->backgroundOffset = 0;
 	state->screenDistance = 0;
 
@@ -31,7 +32,7 @@ void updateGameState(Application* app, GameState* state) {
 		abs(state->position) + app->surfaces[CAR_s]->w / 2 > (state->backgroundOffset >= CAR_Y_POSITION ? state->roadWidth.next : state->roadWidth.current) / 2)
 		state->haltedScore.distance += deltaDistance;
 
-	state->score = (int)((state->distance - state->haltedScore.distance) / SCREEN_HEIGHT * SCORE_MULTIPLIER) * 50;
+	state->score = (int)((state->distance - state->haltedScore.distance) / SCREEN_HEIGHT * SCORE_MULTIPLIER) * 50 + state->additionalScore;
 
 	state->speed += state->direction.vertical * ACCELERATION_MULTIPLIER * app->deltaTime;
 	state->speed = state->speed > MAX_SPEED ? MAX_SPEED : state->speed < 0 ? 0 : state->speed;
@@ -117,7 +118,7 @@ void updateAI(Application* app, GameState* state) {
 		// Check if out of road
 		if (isOutOfRoad(state, app->surfaces[aiCar->type == NON_ENEMY ? NON_ENEMY_CAR_s : ENEMY_CAR_s], aiCar->position.x, aiCar->position.y)) {
 			if (aiCar->type == ENEMY && aiCar->hp < ENEMY_HP)
-				state->score += SCORE_PER_ENEMY;
+				state->additionalScore += SCORE_PER_ENEMY;
 			else if (aiCar->type == NON_ENEMY && aiCar->hp < NON_ENEMY)
 				state->haltedScore.time = HALT_SCORE_TIME;
 			aiCar->hp = 0;
@@ -151,7 +152,10 @@ void handleCollisions(Application* app, GameState* state, AICar* aiCar, H_Direct
 			aiCar->position.x += 30 * state->direction.horizontal;
 
 			aiCar->hp--;
-			if (aiCar->hp == 0) state->score += SCORE_PER_ENEMY;
+			if (aiCar->hp == 0) {
+				if (aiCar->type == NON_ENEMY) state->haltedScore.time = HALT_SCORE_TIME;
+				else state->additionalScore += SCORE_PER_ENEMY;
+			}
 
 			state->direction.horizontal = STRAIGHT;
 			state->speed *= 0.90;
