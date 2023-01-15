@@ -109,7 +109,7 @@ void updateRoadWidth(GameState* state);
 void updateSpareCars(SpareCars* spareCars, int score);
 void updateTimer(double* time, double deltaTime);
 void updateAI(Application* app, GameState* state);
-void handleCollisions(Application* app, GameState* state);
+void handleCollisions(Application* app, GameState* state, AICar* aiCar, H_Direction aiDirection);
 void handleOutOfRoad(GameState* state, SDL_Surface *surface);
 int handleControls(GameState* state, SDL_Event* event);
 void handleGameplay(GameState* state, SDL_Event* event, Saves* saves);

@@ -103,7 +103,7 @@ void updateAI(Application* app, GameState* state) {
 			aiCar->position.x > aiCar->targetX && direction == RIGHT)
 			aiCar->position.x = aiCar->targetX;
 
-		handleCollisions(app, state, aiCar);
+		handleCollisions(app, state, aiCar, direction);
 
 		// Check if out of screen (top or bottom)
 		int surfaceHeight = app->surfaces[aiCar->type == NON_ENEMY ? NON_ENEMY_CAR_s : ENEMY_CAR_s]->h;
@@ -135,25 +135,42 @@ void updateAI(Application* app, GameState* state) {
 	}
 }
 
-void handleCollisions(Application* app, GameState* state, AICar* aiCar) {
+void handleCollisions(Application* app, GameState* state, AICar* aiCar, H_Direction aiDirection) {
 	if (aiCar->hp == 0) return;
 
 	SDL_Surface* surface = app->surfaces[aiCar->type == NON_ENEMY ? NON_ENEMY_CAR_s : ENEMY_CAR_s];
 
+	// Check that the surfaces overlap
 	if (aiCar->position.x + surface->w >= state->position
 		&& aiCar->position.x - surface->w <= state->position
 		&& aiCar->position.y <= CAR_Y_POSITION + surface->h
 		&& aiCar->position.y >= CAR_Y_POSITION - surface->h)
 	{
-		state->position -= 20 * state->direction.horizontal;
-		aiCar->position.x += 30 * state->direction.horizontal;
+		if (state->direction.horizontal != STRAIGHT) {
+			state->position -= 20 * state->direction.horizontal;
+			aiCar->position.x += 30 * state->direction.horizontal;
+
+			aiCar->hp--;
+			if (aiCar->hp == 0) state->score += SCORE_PER_ENEMY;
+
+			state->direction.horizontal = STRAIGHT;
+			state->speed *= 0.90;
+		}
+		else if (aiDirection != STRAIGHT) {
+			state->position -= 30 * aiDirection;
+			aiCar->position.x += 20 * aiDirection;
+
+			state->direction.horizontal = STRAIGHT;
+			state->speed *= 0.5;
+		}
+		else {
+			if (aiCar->position.y > CAR_Y_POSITION)
+				aiCar->speed *= 0.25;
+			else
+				state->speed *= 0.25;
+		}
+
 		aiCar->targetX = aiCar->position.x;
-
-		aiCar->hp--;
-		if (aiCar->hp == 0) state->score += SCORE_PER_ENEMY;
-
-		state->direction.horizontal = STRAIGHT;
-		state->speed = state->speed * 0.90;
 	}
 }
 
@@ -177,7 +194,7 @@ int handleControls(GameState* state, SDL_Event* event) {
 	case SDLK_ESCAPE: state->status = QUIT; return 1;
 	case SDLK_n: initializeGameState(state); return 1;
 	case SDLK_p: if (state->status == PAUSED) {
-		state->status = PLAYING; 
+		state->status = PLAYING;
 		return 1;
 	}
 	default: return 0;
